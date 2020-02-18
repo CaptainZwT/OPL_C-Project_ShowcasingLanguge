@@ -5,7 +5,8 @@ This paired project is assigned alongside Jesse Hines to develop a presentation 
 by James Logan Milliron
 
 Two Console Apps that will use my own "protocol" from networking one as client, one as server and use it to talk back and forth.
-Prof. O. would like to see the server be capable of using my past GUIs with the server
+Prof. O. would like to see the server be capable of using my past GUIs with the server.
+Prof. O. also stresses justify using any libraries that I need to use.
 
 
 # Truing
