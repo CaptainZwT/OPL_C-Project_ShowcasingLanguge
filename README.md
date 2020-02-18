@@ -7,7 +7,7 @@ Solving *Shine* with a basic client/server chat implementation.
 
 Two Console Apps that will use my own "protocol" from networking one as client, one as server and use it to talk back and forth.
 Prof. O. would like to see the server be capable of using my past GUIs with the server.
-Prof. O. also stresses justify using any libraries that I need to use.
+Prof. O. also stresses the need to justify using any libraries for the project's completion.
 
 
 # Truing
