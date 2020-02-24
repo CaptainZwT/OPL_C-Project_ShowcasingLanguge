@@ -11,6 +11,7 @@ Prof. O. also stresses the need to justify using any libraries for the project's
 
 
 # Truing
+Create a REPL system to evaluate Tru expressions. It will be able to parse Tru syntax into abstract syntax, and interpret it.
 by Jesse Hines
 
 # OPL Assignment Details
