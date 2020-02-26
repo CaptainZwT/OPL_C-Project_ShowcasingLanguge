@@ -5,9 +5,9 @@ namespace Tru {
         public static TruExpr Parse(string code) { return ParseHelper( ExprTree.Parse(code) ); }
 
         private static TruExpr ParseHelper(ExprTree expr) {
-            if ( ExprTree.Match("#t", expr) ) {
+            if ( ExprTree.Match("true", expr) ) {
                 return new TruValue(true);
-            } else if ( ExprTree.Match("#f", expr) ) {
+            } else if ( ExprTree.Match("false", expr) ) {
                 return new TruValue(false);
             } else if ( expr is ExprList exprList ) { // cast expr into exprList
 

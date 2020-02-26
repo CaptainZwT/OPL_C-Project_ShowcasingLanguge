@@ -14,7 +14,7 @@ namespace Tru
 
                 try {
                     bool result = TruExpr.Parse(input).Interpret();
-                    Console.WriteLine( result ? "#t" : "#f" );
+                    Console.WriteLine( result ? "true" : "false" );
                 } catch (System.ArgumentException e) {
                     Console.WriteLine(e.Message);
                 }
