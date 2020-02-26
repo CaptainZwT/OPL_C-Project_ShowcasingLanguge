@@ -61,6 +61,9 @@ namespace Tests
             Assert.That(ExprTree.Tokenize("{a {nested} list}"),
                 Is.EqualTo( new List<string>{"{", "a", "{", "nested", "}", "list", "}"} ));
 
+            Assert.That(ExprTree.Tokenize("[other (types of) brackets]"),
+                Is.EqualTo( new List<string>{"[", "other", "(", "types", "of", ")", "brackets", "]"} ));
+
             Assert.That(ExprTree.Tokenize("{}"),
                 Is.EqualTo( new List<string>{"{", "}"} ));
 
@@ -73,8 +76,6 @@ namespace Tests
         public void TestExprTreeParse() {
             Assert.That(ExprTree.Parse("x"),
                 Is.EqualTo( new ExprLiteral("x") ));
-
-            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("hello world") );
 
             Assert.That(ExprTree.Parse("{a  list }"),
                 Is.EqualTo( new ExprList(new List<ExprTree>{ new ExprLiteral("a"), new ExprLiteral("list") }) ));
@@ -91,8 +92,24 @@ namespace Tests
             Assert.That(ExprTree.Parse("{}"),
                 Is.EqualTo( new ExprList( new List<ExprTree>() ) ));
 
+            Assert.That(ExprTree.Parse("[other (types of) brackets]"),
+                Is.EqualTo( new ExprList(new List<ExprTree>{
+                    new ExprLiteral("other"),
+                    new ExprList(new List<ExprTree>{
+                        new ExprLiteral("types"),
+                        new ExprLiteral("of")
+                    }),
+                    new ExprLiteral("brackets")
+                }) ));
 
+
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("hello world") );
             Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("") );
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("}") );
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("{") );
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("[mismatched}") );
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("(missing") );
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("missing)") );
         }
 
         [Test]

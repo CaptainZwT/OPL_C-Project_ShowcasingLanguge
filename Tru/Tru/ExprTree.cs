@@ -2,17 +2,23 @@
 
 namespace Tru {
     public abstract class ExprTree {
+        private static string opening = "{[(";
+        private static string closing = "}])";
+        private static string whitespace = " \n\t";
+
+
         /// Splits the string into tokens. Tokens are seperated by spaces, and braces are always a token by themselves.
         public static List<string> Tokenize(string code) {
             List<string> tokens = new List<string>();
             string token = "";
 
             foreach (char c in code) {
-                if ( " {}".Contains(c) ) {
+                if (whitespace.Contains(c)) {
                     if (token != "") tokens.Add(token);
-
-                    if (c != ' ') tokens.Add( c.ToString() );
-
+                    token = "";
+                } else if ( opening.Contains(c) || closing.Contains(c) ) {
+                    if (token != "") tokens.Add(token);
+                    tokens.Add( c.ToString() ); // Add the bracket as its own token.
                     token = "";
                 } else {
                     token += c;
@@ -34,7 +40,7 @@ namespace Tru {
             (ExprTree expr, int index) = ParseHelper(tokens, 0);
 
             if (index < tokens.Count) {
-                throw new System.ArgumentException("Multiple expressions given.");
+                throw new System.ArgumentException("Multiple expressions given or missmatched brackets.");
             } else {
                 return expr;
             }
@@ -44,21 +50,25 @@ namespace Tru {
         /// the token list, ie the place to parse next.!-- If its a literal string, it will return it, else, it will
         /// return the expr up until the matching close bracket.
         private static (ExprTree expr, int index) ParseHelper(List<string> tokens, int index) {
-            if (tokens[index] == "{") {
+            if ( opening.Contains(tokens[index]) ) {
+                char close = closing[ opening.IndexOf(tokens[index]) ]; // Closing bracket we're looking for
+
                 index += 1;
                 ExprList exprList = new ExprList();
 
-                while (index < tokens.Count && tokens[index] != "}") {
+                while (index < tokens.Count && tokens[index] != close.ToString()) {
                     ExprTree expr;
                     (expr, index) = ParseHelper(tokens, index); // returns tuple containing expr and the index it left off at.
                     exprList.list.Add(expr);
                 }
 
-                if (index >= tokens.Count) {
-                    throw new System.ArgumentException("Mismatched brackets.");
+                if (index >= tokens.Count) { // Reached end of string and didn't find close bracket.
+                    throw new System.ArgumentException("Mismatched or missing brackets.");
                 }
 
                 return (exprList, index + 1);
+            } else if ( closing.Contains(tokens[index]) ) { // Closing bracket with no match.
+                throw new System.ArgumentException("Mismatched or missing brackets.");
             } else { // just a string literal.
                 return (new ExprLiteral(tokens[index]), index + 1);
             }
