@@ -54,19 +54,19 @@ namespace Tru {
                 char close = closing[ opening.IndexOf(tokens[index]) ]; // Closing bracket we're looking for
 
                 index += 1;
-                ExprList exprList = new ExprList();
+                List<ExprTree> exprList = new List<ExprTree>();
 
                 while (index < tokens.Count && tokens[index] != close.ToString()) {
                     ExprTree expr;
                     (expr, index) = ParseHelper(tokens, index); // returns tuple containing expr and the index it left off at.
-                    exprList.list.Add(expr);
+                    exprList.Add(expr);
                 }
 
                 if (index >= tokens.Count) { // Reached end of string and didn't find close bracket.
                     throw new System.ArgumentException("Mismatched or missing brackets.");
                 }
 
-                return (exprList, index + 1);
+                return (new ExprList(exprList.ToArray()), index + 1);
             } else if ( closing.Contains(tokens[index]) ) { // Closing bracket with no match.
                 throw new System.ArgumentException("Mismatched or missing brackets.");
             } else { // just a string literal.
@@ -90,8 +90,8 @@ namespace Tru {
             } else {
                 ExprList patternList = (ExprList) pattern;
 
-                if (expr is ExprList exprList && patternList.list.Count == exprList.list.Count ) {
-                    for ( int i = 0; i < patternList.list.Count; i++) {
+                if (expr is ExprList exprList && patternList.list.Length == exprList.list.Length ) {
+                    for ( int i = 0; i < patternList.list.Length; i++) {
                         if ( !MatchHelper(patternList.list[i], exprList.list[i]) ) return false;
                     }
                     return true;
@@ -114,13 +114,19 @@ namespace Tru {
     }
 
     public class ExprList : ExprTree {
-        public List<ExprTree> list;
-        public ExprList(List<ExprTree> list) { this.list = list; }
-        public ExprList() : this(new List<ExprTree>()) {}
+        public ExprTree[] list;
+        public ExprList(ExprTree[] list) { this.list = list; }
+        public ExprList() : this(new ExprTree[0]) {}
 
         public override bool Equals(object obj)
         {
-            return obj is ExprList exprList && this.list.Equals( exprList.list );
+            if (obj is ExprList exprList && this.list.Length == exprList.list.Length) {
+                for (int i = 0; i < this.list.Length; i++) {
+                    if (!this.list[i].Equals(exprList.list[i])) return false;
+                }
+                return true;
+            };
+            return false;
         }
     }
 

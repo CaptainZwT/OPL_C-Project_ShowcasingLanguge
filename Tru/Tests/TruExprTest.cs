@@ -10,7 +10,6 @@ namespace Tests
         public void TestTruEquals() {
             Assert.True(  new TruValue(true).Equals( new TruValue(true) ));
             Assert.False( new TruValue(true).Equals( new TruValue(false) ));
-            Assert.False( new TruValue(true).Equals( new ExprList(new List<ExprTree>()) ));
             Assert.False( new TruValue(true).Equals( null ));
 
             Assert.True(

@@ -35,16 +35,24 @@ namespace Utility {
             this.Count += 1;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is List<T> list && this.Count == list.Count) {
-                for (int i = 0; i < this.Count; i++) {
-                    if (!this._elements[i].Equals(list._elements[i])) return false;
-                }
-                return true;
-            };
-            return false;
+        public T[] ToArray() {
+            T[] newArray = new T[ this.Count ];
+            for (int i = 0; i < this.Count; i++) {
+                newArray[i] = this._elements[i];
+            }
+            return newArray;
         }
+
+        // public override bool Equals(object obj)
+        // {
+        //     if (obj is List<T> list && this.Count == list.Count) {
+        //         for (int i = 0; i < this.Count; i++) {
+        //             if (!this._elements[i].Equals(list._elements[i])) return false;
+        //         }
+        //         return true;
+        //     };
+        //     return false;
+        // }
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this._elements.GetEnumerator();

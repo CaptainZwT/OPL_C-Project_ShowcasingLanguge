@@ -14,30 +14,30 @@ namespace Tests
             Assert.False( new ExprLiteral("a").Equals( null ));
 
             Assert.True(
-                new ExprList(new List<ExprTree>{
+                new ExprList(new ExprTree[]{
                     new ExprLiteral("a"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("b")
                     })
                 }).Equals(
-                new ExprList(new List<ExprTree>{
+                new ExprList(new ExprTree[]{
                     new ExprLiteral("a"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("b")
                     })
                 })
             ));
 
             Assert.False(
-                new ExprList(new List<ExprTree>{
+                new ExprList(new ExprTree[]{
                     new ExprLiteral("a"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("b")
                     })
                 }).Equals(
-                new ExprList(new List<ExprTree>{
+                new ExprList(new ExprTree[]{
                     new ExprLiteral("a"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("c")
                     })
                 })
@@ -78,24 +78,24 @@ namespace Tests
                 Is.EqualTo( new ExprLiteral("x") ));
 
             Assert.That(ExprTree.Parse("{a  list }"),
-                Is.EqualTo( new ExprList(new List<ExprTree>{ new ExprLiteral("a"), new ExprLiteral("list") }) ));
+                Is.EqualTo( new ExprList(new ExprTree[]{ new ExprLiteral("a"), new ExprLiteral("list") }) ));
 
             Assert.That(ExprTree.Parse("{a {nested} list}"),
-                Is.EqualTo( new ExprList(new List<ExprTree>{
+                Is.EqualTo( new ExprList(new ExprTree[]{
                     new ExprLiteral("a"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("nested")
                     }),
                     new ExprLiteral("list")
                 }) ));
 
             Assert.That(ExprTree.Parse("{}"),
-                Is.EqualTo( new ExprList( new List<ExprTree>() ) ));
+                Is.EqualTo( new ExprList() ));
 
             Assert.That(ExprTree.Parse("[other (types of) brackets]"),
-                Is.EqualTo( new ExprList(new List<ExprTree>{
+                Is.EqualTo( new ExprList(new ExprTree[]{
                     new ExprLiteral("other"),
-                    new ExprList(new List<ExprTree>{
+                    new ExprList(new ExprTree[]{
                         new ExprLiteral("types"),
                         new ExprLiteral("of")
                     }),
