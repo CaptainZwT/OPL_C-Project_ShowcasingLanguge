@@ -1,4 +1,4 @@
-﻿using Utility;
+using Utility;
 
 namespace Tru {
     public abstract class TruExpr {
