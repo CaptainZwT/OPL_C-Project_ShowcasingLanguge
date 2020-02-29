@@ -4,7 +4,7 @@ namespace Tru {
     public abstract class ExprTree {
         private static string opening = "{[(";
         private static string closing = "}])";
-        private static string whitespace = " \n\t";
+        private static string whitespace = " \r\n\t";
 
 
         /// Splits the string into tokens. Tokens are seperated by spaces, and braces are always a token by themselves.

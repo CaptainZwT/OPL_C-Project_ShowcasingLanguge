@@ -58,7 +58,7 @@ namespace Tests
             Assert.That(ExprTree.Tokenize("{a list }"),
                 Is.EqualTo( new List<string>{"{", "a", "list", "}"} ));
 
-            Assert.That(ExprTree.Tokenize("{a {nested} list}"),
+            Assert.That(ExprTree.Tokenize("{a \n{nested}\n list}"),
                 Is.EqualTo( new List<string>{"{", "a", "{", "nested", "}", "list", "}"} ));
 
             Assert.That(ExprTree.Tokenize("[other (types of) brackets]"),
@@ -69,6 +69,12 @@ namespace Tests
 
             Assert.That(ExprTree.Tokenize(""),
                 Is.EqualTo( new List<string>{} ));
+
+            // Assert.That(ExprTree.Tokenize(
+            //     @"{a; this is a comment
+            //         {nested} ; another comment}
+            //     list}"),
+            //     Is.EqualTo( new List<string>{"{", "a", "{", "nested", "}", "list", "}"} ));
         }
 
 

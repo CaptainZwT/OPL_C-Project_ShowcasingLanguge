@@ -31,5 +31,19 @@ namespace Tests
             Assert.That( list.ToArray()[1], Is.EqualTo("World") );
         }
 
+        [Test]
+        public void TestLargeList() {
+            List<int> list = new List<int>();
+
+            for (int i = 0; i < 100; i++) {
+                list.Add(i);
+            }
+
+            Assert.That( list.Count, Is.EqualTo( 100 ) );
+            for (int i = 0; i < 100; i++) {
+                Assert.That( list[i], Is.EqualTo( i ) );
+            }
+        }
+
     }
 }

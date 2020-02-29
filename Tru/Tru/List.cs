@@ -27,8 +27,6 @@ namespace Utility {
                 T[] newArray = new T[ this.Count * 2 ];
                 this._elements.CopyTo(newArray, 0);
                 this._elements = newArray;
-                System.Console.WriteLine("Resize");
-
             }
 
             this._elements[this.Count] = elem;
