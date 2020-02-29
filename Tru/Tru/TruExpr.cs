@@ -11,6 +11,7 @@ namespace Tru {
         /// Parses a string into Tru abstract syntax that can be interpreted.
         public static TruExpr Parse(string code) { return ParseHelper( ExprTree.Parse(code) ); }
 
+        /// Parses an ExprTree into Tru abstract syntax.
         private static TruExpr ParseHelper(ExprTree expr) {
             if (expr is ExprLiteral exprLit) {
 
@@ -18,23 +19,27 @@ namespace Tru {
                     return new TruBool(true);
                 } else if ( ExprTree.Match("false", exprLit) ) {
                     return new TruBool(false);
-                } else if (TruId.IsValidIdentifier(exprLit.val)) {
-                    return new TruId(exprLit.val);
                 } else {
-                    throw new System.ArgumentException($"Can't use {exprLit.val} as an identifier.");
+                    return ParseId(exprLit);
                 }
 
             } else if (expr is ExprList exprList && exprList.list.Length > 0) { // cast expr into exprList
 
                 if (ExprTree.Match("{lambda {LITERAL ...} ANY}", exprList)) {
-                    ExprTree[] paramExprs = ((ExprList) exprList.list[1]).list;
-                    string[] parameters = Array.ConvertAll(paramExprs, (p) => ((ExprLiteral) p).val);
+                    ExprTree[] parameters = ((ExprList) exprList.list[1]).list;
 
-                    if ( Array.TrueForAll(parameters, (p) => TruId.IsValidIdentifier(p)) ) {
-                        return new TruLambda( parameters, ParseHelper(exprList.list[2]) );
-                    } else {
-                        throw new System.ArgumentException($"Can't use reserved words as parameters.");
-                    }
+                    return new TruLambda(
+                        Array.ConvertAll(parameters, (p) => ParseId(p).name), // Will throw error if contains an invalid id.
+                        ParseHelper(exprList.list[2])
+                    );
+
+                } else if (ExprTree.Match("{let {[LITERAL ANY] ...} ANY}", exprList)) {
+                    ExprList[] localExpr = Array.ConvertAll(((ExprList) exprList.list[1]).list, (x) => (ExprList) x);
+                    (string, TruExpr)[] locals = Array.ConvertAll(localExpr, // Convert into name, expr tuples.
+                        (local) => ( ParseId(local.list[0]).name, ParseHelper(local.list[1]) ) // Asserts that var names are valid.
+                    );
+
+                    return new TruLet(locals, ParseHelper(exprList.list[2]));
 
                 } else {
                     TruExpr[] args = new TruExpr[exprList.list.Length - 1];
@@ -47,6 +52,15 @@ namespace Tru {
             }
 
             throw new System.ArgumentException("Invalid syntax.");
+        }
+
+        /// Returns a TruId, or throws an error if the TruExpr isn't a valid TruId
+        private static TruId ParseId(ExprTree expr) {
+            if (expr is ExprLiteral exprLit && Array.IndexOf(ReservedWords, exprLit.val) < 0) {
+                return new TruId(exprLit.val);
+            } else {
+                throw new System.ArgumentException($"Can't use {expr} as an identifier.");
+            }
         }
 
         /// Interprets a TruExpr with the standard library.
@@ -137,11 +151,6 @@ namespace Tru {
         public string name;
         public TruId(string name) { this.name = name; }
 
-        /// Returns true if the string is a valid identifier in the tru language.
-        public static bool IsValidIdentifier(string id) {
-            return Array.IndexOf(ReservedWords, id) < 0;
-        }
-
         public override TruVal Interpret(Environment env) { return env.Find(this.name); }
 
         public override string ToString() { return this.name; }
@@ -192,6 +201,37 @@ namespace Tru {
         public override bool Equals(object obj) {
             return obj is TruLambda truLam && Helpers.ArrayEquals(this.parameters, truLam.parameters) &&
                 this.body.Equals(truLam.body);
+        }
+    }
+
+    /// Represents a lambda expression (which should evaluate to a TruFunc)
+    public class TruLet : TruExpr {
+        public (string name, TruExpr expr)[] locals;
+        public TruExpr body;
+
+        public TruLet((string, TruExpr)[] locals, TruExpr body) {
+            this.locals = locals;
+            this.body = body;
+        }
+
+        public override TruVal Interpret(Environment env) {
+            Environment localEnv = new Environment(
+                Array.ConvertAll(this.locals, (loc) => (loc.name, loc.expr.Interpret(env)))
+            );
+            localEnv.AddAll(env);
+            return this.body.Interpret(localEnv);
+        }
+
+        public override string ToString() {
+            string localStr = string.Join(" ",
+                Array.ConvertAll( this.locals, (local) => $"[{local.name} {local.expr}]" )
+            );
+            return "{let {" + localStr + "} " + body + "}";
+        }
+
+        public override bool Equals(object obj) {
+            return obj is TruLet truLet && Helpers.ArrayEquals(this.locals, truLet.locals) &&
+                this.body.Equals(truLet.body);
         }
     }
 }

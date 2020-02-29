@@ -72,6 +72,13 @@ namespace Tests
             Assert.True(  call0.Equals(call1) );
             Assert.False( call0.Equals(call2) );
             Assert.False( call0.Equals(call3) );
+
+            TruExpr let0 = TruExpr.Parse("{let {[a false]} a}");
+            TruExpr let1 = TruExpr.Parse("{let {[a false]} a}");
+            TruExpr let2 = TruExpr.Parse("{let {} true}");
+
+            Assert.True(  let0.Equals(let1) );
+            Assert.False( let0.Equals(let2) );
         }
 
         [Test]
@@ -95,6 +102,15 @@ namespace Tests
                 Is.EqualTo("function {}"));
             Assert.That( new TruFunc(new string[] {"x"}, new TruCall(new TruId("not"), new[]{new TruId("x")}), null).ToString(),
                 Is.EqualTo("function {x}"));
+
+            Assert.That( new TruLet(
+                    new (string, TruExpr)[]{
+                        ("var1", new TruBool(false)),
+                        ("var2",  new TruCall(new TruId("not"), new[]{ new TruBool(true) }))
+                    },
+                    new TruCall(new TruId("and"), new[]{ new TruId("var1"), new TruId("var2") })
+                ).ToString(),
+                Is.EqualTo("{let {[var1 false] [var2 {not true}]} {and var1 var2}}"));
         }
 
         [Test]
@@ -148,6 +164,27 @@ namespace Tests
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {{not x}} false}") );
 
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and lambda false}") );
+
+            Assert.That( TruExpr.Parse(
+                @"{let {[var1 false] [var2 {not true}]}
+                    {and var1 var2}
+                  }"),
+                Is.EqualTo( new TruLet(
+                    new (string, TruExpr)[]{
+                        ("var1", new TruBool(false)),
+                        ("var2",  new TruCall(new TruId("not"), new[]{ new TruBool(true) }))
+                    },
+                    new TruCall(new TruId("and"), new[]{ new TruId("var1"), new TruId("var2") })
+                )));
+
+            Assert.That( TruExpr.Parse(
+                @"{let {}
+                    true
+                  }"),
+                Is.EqualTo( new TruLet(
+                    new (string, TruExpr)[]{},
+                    new TruBool(true)
+                )));
         }
 
         [Test]
@@ -192,7 +229,7 @@ namespace Tests
         }
 
         [Test]
-        public void TestTruEnvironmentInterpret() {
+        public void TestTruComplexInterpret() {
             Environment testEnv = new Environment( new[]{
                 ("y", new TruBool(false)),
                 ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
@@ -215,34 +252,33 @@ namespace Tests
             TruFunc generatedFunc = TruExpr.Parse("{meta-func true}").Interpret(testEnv) as TruFunc;
             Assert.That( generatedFunc, Is.Not.EqualTo(null));
             Assert.That( generatedFunc.env.Find("a"), Is.EqualTo( new TruBool(true) ));
+
+            Assert.That( TruExpr.Parse(
+                @"{let {[var1 false] [var2 true]}
+                    {and var1 var2}
+                  }").Interpret(),
+                Is.EqualTo( new TruBool(false) ));
+
+            Assert.That( TruExpr.Parse(
+                @"{let { [ my-func {lambda {a b} {and a b}} ] }
+                    {my-func true true}
+                  }").Interpret(),
+                Is.EqualTo( new TruBool(true) ));
+
+            Assert.That( TruExpr.Parse(
+                @"{let {}
+                    true
+                  }").Interpret(),
+                Is.EqualTo( new TruBool(true) ));
+
+            Assert.That( TruExpr.Parse( // insure that the captured environment is separate from outer.
+                @"{let { [a false] [my-func {meta-func true}]}
+                    {my-func}
+                  }").Interpret(testEnv),
+                Is.EqualTo( new TruBool(true) ));
+
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{let {x 3} x}").Interpret(testEnv) );
         }
-
-        // [Test]
-        // public void TestTruLet() {
-        //     Assert.That( TruExpr.Parse(
-        //         @"{let {[var1 false] [var2 true]}
-        //             {and var1 var2}
-        //           }").Interpret(),
-        //         Is.EqualTo( new TruBool(false) ));
-
-        //     Assert.That( TruExpr.Parse(
-        //         @"{let { [ my-func {lambda {a b} {and a b}} ] }
-        //             {my-func true true}
-        //           }").Interpret(),
-        //         Is.EqualTo( new TruBool(true) ));
-
-        //     Assert.That( TruExpr.Parse(
-        //         @"{let {}
-        //             true
-        //           }").Interpret(),
-        //         Is.EqualTo( new TruBool(true) ));
-
-        //     Assert.That( TruExpr.Parse( // insure that the captured environment is separate from outer.
-        //         @"{let { [a false] [my-func {meta-func true}]}
-        //             {my-func}
-        //           }").Interpret(testEnv),
-        //         Is.EqualTo( new TruBool(true) ));
-        // }
 
         // [Test]
         // public void Test4WayMultiplexer() {
