@@ -76,8 +76,10 @@ namespace Tru {
 
         /// Checks if expr matches pattern, meaning it has the same structure,
         /// Special tags can be used in the pattern as wildcards:
-        ///     ANY: Will match any ExprTree
-        ///     LITERAL: will match any ExprLiteral
+        ///     ANY : matches any ExprTree
+        ///     LITERAL : matches any ExprLiteral
+        ///     LIST : matches any ExrList
+        ///     ... : Modifies the previous item to match 0 or more repetitions of the previous pattern in a list.
         public static bool Match(string pattern, ExprTree expr) {
             return MatchHelper( Parse(pattern), expr );
         }
@@ -86,18 +88,39 @@ namespace Tru {
             if (pattern is ExprLiteral patternLit) {
                 return patternLit.val == "ANY" ||
                     ( patternLit.val == "LITERAL" && expr is ExprLiteral ) ||
+                    ( patternLit.val == "LIST" && expr is ExprList ) ||
                     pattern.Equals(expr);
-            } else {
-                ExprList patternList = (ExprList) pattern;
+            } else if (pattern is ExprList patList && expr is ExprList exprList) {
+                int patI = patList.list.Length - 1, exprI = exprList.list.Length - 1;
 
-                if (expr is ExprList exprList && patternList.list.Length == exprList.list.Length ) {
-                    for ( int i = 0; i < patternList.list.Length; i++) {
-                        if ( !MatchHelper(patternList.list[i], exprList.list[i]) ) return false;
+                while ( patI >= 0 ) { // Loop through the lists backwards so that ... is visited before what it affects.
+                    // If a ... has nothing before it just match it like a normal symbol
+                    if ( patList.list[patI].Equals(new ExprLiteral("...")) && patI >= 1 ) {
+                        ExprTree repPattern = patList.list[patI - 1];
+                        int matchCount = 0;
+                        for (/*exprI current value*/; exprI >= 0 && MatchHelper(repPattern, exprList.list[exprI]); exprI--)
+                            matchCount++;
+                        patI -= 2;
+
+                        // to prevent ... from eating the first a in {a a ...}, we count repetitions of the pattern in pattern
+                        // and make sure we found at least that many.
+                        int expectedCount = 0;
+                        for (/*patI current value*/; patI >= 0 && patList.list[patI].Equals(repPattern); patI--)
+                            expectedCount++;
+
+                        if (expectedCount > matchCount)
+                            return false;
+                    } else {
+                        if ( exprI < 0 || !MatchHelper(patList.list[patI], exprList.list[exprI]) )
+                            return false;
+                        patI--; exprI--;
                     }
-                    return true;
-                } else {
-                    return false;
                 }
+
+                return (patI < 0 && exprI < 0);
+
+            } else {
+                return false;
             }
         }
 

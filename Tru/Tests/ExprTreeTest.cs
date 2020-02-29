@@ -159,6 +159,25 @@ namespace Tests
 
             Assert.False( ExprTree.Match("{append {LITERAL ANY end} ANY}", ExprTree.Parse("{append {reverse 'palindrome' start} 'word1'}"))  );
 
+            Assert.True( ExprTree.Match("LIST", ExprTree.Parse("{a list}")) );
+
+            Assert.True(  ExprTree.Match("{a ...}", ExprTree.Parse("{}")) );
+            Assert.True(  ExprTree.Match("{a ...}", ExprTree.Parse("{a}")) );
+            Assert.True(  ExprTree.Match("{[LITERAL LITERAL] ...}", ExprTree.Parse("{[a b]}")) );
+            Assert.True(  ExprTree.Match("{a ...}", ExprTree.Parse("{a a a}")) );
+            Assert.False( ExprTree.Match("{a b ...}", ExprTree.Parse("{a a b b}")) );
+            Assert.True(  ExprTree.Match("{a b ... b}", ExprTree.Parse("{a b}")) );
+            Assert.False( ExprTree.Match("{a b ... b}", ExprTree.Parse("{a b c}")) );
+            Assert.False( ExprTree.Match("{a b ... b c}", ExprTree.Parse("{a b b}")) );
+            Assert.False( ExprTree.Match("{a b ... b}", ExprTree.Parse("{a}")) );
+            Assert.True(  ExprTree.Match("{a b b ...}", ExprTree.Parse("{a b}")) );
+            Assert.False( ExprTree.Match("{b b ...}", ExprTree.Parse("{a b}")) );
+            Assert.True(  ExprTree.Match("{b b ...}", ExprTree.Parse("{b}")) );
+            Assert.False( ExprTree.Match("{b b b ...}", ExprTree.Parse("{b}")) );
+            Assert.False( ExprTree.Match("{a b b ... c}", ExprTree.Parse("{a b b}")) );
+            Assert.False( ExprTree.Match("{a b b ...}", ExprTree.Parse("{a}")) );
+            Assert.True(  ExprTree.Match("{b ... c ...}", ExprTree.Parse("{b b b c c c}")) );
+            Assert.False( ExprTree.Match("{b ... c ...}", ExprTree.Parse("{b b b c c c d}")) );
         }
     }
 }
