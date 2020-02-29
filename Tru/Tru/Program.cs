@@ -13,8 +13,8 @@ namespace Tru
                 if (input == "exit")  return;
 
                 try {
-                    bool result = TruExpr.Parse(input).Interpret();
-                    Console.WriteLine( result ? "true" : "false" );
+                    TruVal result = TruExpr.Parse(input).Interpret();
+                    Console.WriteLine( result.ToString() );
                 } catch (System.ArgumentException e) {
                     Console.WriteLine(e.Message);
                 }
