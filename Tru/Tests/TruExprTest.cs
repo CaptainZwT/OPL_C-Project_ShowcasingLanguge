@@ -19,17 +19,29 @@ namespace Tests
             Assert.False( TruLibrary.library.Find("and").Equals(TruLibrary.library.Find("or"))  );
 
 
-            TruFunc func0 = new TruFunc(new string[] {}, null, null);
-            TruFunc func1 = new TruFunc(new string[] {"x"}, new TruId("x"), null);
-            TruFunc func2 = new TruFunc(new string[] {"x"}, new TruId("x"), null);
-            TruFunc func3 = new TruFunc(new string[] {"x"}, new TruId("x"), TruLibrary.library);
-            TruFunc func4 = new TruFunc(new string[] {"x"}, new TruId("y"), null);
+            TruFunc func0 = new TruFunc(new string[] {},    new TruBool(false), TruLibrary.library);
+            TruFunc func1 = new TruFunc(new string[] {"x"}, new TruId("x"), TruLibrary.library);
+            TruFunc func2 = new TruFunc(new string[] {"x"}, new TruId("x"), TruLibrary.library);
+            TruFunc func3 = new TruFunc(new string[] {"x"}, new TruId("x"), new Environment());
+            TruFunc func4 = new TruFunc(new string[] {"x"}, new TruId("y"), TruLibrary.library);
 
             Assert.True(func1.Equals(func2));
             Assert.False(func0.Equals(func1));
             Assert.False(func1.Equals(func3));
             Assert.False(func1.Equals(func4));
             Assert.False(func1.Equals(func0));
+
+            TruLambda lamb0 = new TruLambda(new string[] {"x"}, new TruId("x"));
+            TruLambda lamb1 = new TruLambda(new string[] {"x"}, new TruId("x"));
+            TruLambda lamb2 = new TruLambda(new string[] {}, new TruId("x"));
+            TruLambda lamb3 = new TruLambda(new string[] {"y"}, new TruId("x"));
+            TruLambda lamb4 = new TruLambda(new string[] {"x"}, new TruId("y"));
+
+
+            Assert.True(lamb0.Equals(lamb1));
+            Assert.False(lamb0.Equals(lamb2));
+            Assert.False(lamb0.Equals(lamb3));
+            Assert.False(lamb0.Equals(lamb4));
 
 
             TruCall call0 = new TruCall(new TruId("and"), new TruExpr[] {
@@ -71,13 +83,18 @@ namespace Tests
 
             Assert.That( new TruBuiltIn(null).ToString(), Is.EqualTo("built-in"));
 
-            Assert.That( new TruFunc(new string[] {}, new TruBool(false)).ToString(),
+            Assert.That( new TruLambda(new string[] {}, new TruBool(false)).ToString(),
                 Is.EqualTo("{lambda {} false}"));
-            Assert.That( new TruFunc(new string[] {"x"}, new TruCall(new TruId("not"), new[]{new TruId("x")})).ToString(),
+            Assert.That( new TruLambda(new string[] {"x"}, new TruCall(new TruId("not"), new[]{new TruId("x")})).ToString(),
                 Is.EqualTo("{lambda {x} {not x}}"));
 
             Assert.That( new TruCall(new TruId("and"), new [] {new TruBool(true), new TruBool(false)}).ToString(),
                 Is.EqualTo("{and true false}"));
+
+            Assert.That( new TruFunc(new string[] {}, new TruBool(false), null).ToString(),
+                Is.EqualTo("function {}"));
+            Assert.That( new TruFunc(new string[] {"x"}, new TruCall(new TruId("not"), new[]{new TruId("x")}), null).ToString(),
+                Is.EqualTo("function {x}"));
         }
 
         [Test]
@@ -105,18 +122,32 @@ namespace Tests
                     new TruBool(true)
                  })));
 
-            // Assert.That( TruExpr.Parse("{lambda {a b} a}"),
-            //     Is.EqualTo( new TruFunc(new string[] {"a", "b"}, new TruId("a")) ));
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{}").Interpret() ); // Can't have an empty call.
 
-            // Assert.That( TruExpr.Parse("{lambda {} {and false true}}"),
-            //     Is.EqualTo( new TruFunc(new string[] {},
-            //         new TruCall(new TruId("and"), new[] { new TruBool(false), new TruBool(true) })) ));
 
-            // Assert.That( TruExpr.Parse("{{lambda {x} x} false}"),
-            //     Is.EqualTo( new TruCall(
-            //         new TruFunc(new string[] {"x"}, new TruId("x")),
-            //         new[] { new TruBool(false) }
-            // )));
+            Assert.That( TruExpr.Parse("{lambda {a b} a}"),
+                Is.EqualTo( new TruLambda(new[] {"a", "b"}, new TruId("a")) ));
+
+            Assert.That( TruExpr.Parse("{lambda {} {and false true}}"),
+                Is.EqualTo( new TruLambda(new string[] {},
+                    new TruCall(new TruId("and"), new[] { new TruBool(false), new TruBool(true) })) ));
+
+            Assert.That( TruExpr.Parse("{{lambda {x} x} false}"),
+                Is.EqualTo( new TruCall(
+                    new TruLambda(new[] {"x"}, new TruId("x")),
+                    new[] { new TruBool(false) }
+            )));
+
+            Assert.That( TruExpr.Parse("{lambda {and} and}"), // You can shadow built-in bindings
+                Is.EqualTo( new TruLambda(new[] {"and"}, new TruId("and")) ));
+
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {true} true}") ); // You can't shadow true/false
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {false} false}") );
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {lambda} false}") );
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {x} false false}") );
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{lambda {{not x}} false}") );
+
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and lambda false}") );
         }
 
         [Test]
@@ -142,64 +173,75 @@ namespace Tests
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and true true true}").Interpret() );
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and}").Interpret() );
 
-            // Assert.That( TruExpr.Parse("{lambda {a b} a}").Interpret(), // Interprets to a lambda.
-            //     Is.EqualTo( new TruFunc(new string[] {"a", "b"}, new TruId("a")) ));
-
-            // Assert.That( TruExpr.Parse("{lambda {} {and false true}}").Interpret(),
-            //     Is.EqualTo( new TruFunc(new string[] {},
-            //         new TruCall(new TruId("and"), new[] { new TruBool(false), new TruBool(true) })) ));
-
-            // Assert.That( TruExpr.Parse("{{lambda {x} x} false}").Interpret(),
-                // Is.EqualTo( new TruBool(false) ));
-
             Assert.That( TruExpr.Parse("and").Interpret(),
                 Is.EqualTo( TruLibrary.library.Find("and") ));
         }
 
-        // [Test]
-        // public void TestTruComplexInterpret() {
-        //     Environment testEnv = new Environment( new[]{
-        //         ("y", new TruBool(false)),
-        //         ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
-        //         ("good-func", TruExpr.Parse("{lambda {x} x}").Interpret()),
-        //         ("meta-func", TruExpr.Parse("{lambda {a} {lambda {} a}").Interpret()) // returns a lambda that captured a.
-        //     });
-        //     testEnv.AddAll(TruLibrary.library);
+        [Test]
+        public void TestTruLambdas() {
+            Assert.That( TruExpr.Parse("{lambda {a b} a}").Interpret(), // Interprets to a lambda.
+                Is.EqualTo( new TruFunc(new string[] {"a", "b"}, new TruId("a"), TruLibrary.library) ));
 
-        //     /// y should be not found, since it isn't in the lambda's scope.
-        //     Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
-        //     Assert.That( TruExpr.Parse("{good-func false}").Interpret(testEnv),
+            Assert.That( TruExpr.Parse("{lambda {} {and false true}}").Interpret(),
+                Is.EqualTo( new TruFunc(new string[] {},
+                    new TruCall(new TruId("and"), new[] { new TruBool(false), new TruBool(true) }),
+                    TruLibrary.library) ));
+
+            Assert.That( TruExpr.Parse("{{lambda {x} x} false}").Interpret(),
+                Is.EqualTo( new TruBool(false) ));
+        }
+
+        [Test]
+        public void TestTruEnvironmentInterpret() {
+            Environment testEnv = new Environment( new[]{
+                ("y", new TruBool(false)),
+                ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
+                ("good-func", TruExpr.Parse("{lambda {x} x}").Interpret()),
+                ("meta-func", TruExpr.Parse("{lambda {a} {lambda {} a}}").Interpret()) // returns a lambda that captured a.
+            });
+            testEnv.AddAll(TruLibrary.library);
+
+            /// y should be not found, since it isn't in the lambda's scope.
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
+            Assert.That( TruExpr.Parse("{good-func false}").Interpret(testEnv),
+                Is.EqualTo( new TruBool(false) ));
+            Assert.That( TruExpr.Parse("y").Interpret(testEnv),
+                Is.EqualTo( new TruBool(false) ));
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{y}").Interpret(testEnv) ); // not callable.
+            Assert.That( TruExpr.Parse("{{meta-func true}}").Interpret(testEnv),
+                Is.EqualTo( new TruBool(true) ));
+
+            // the lambda return from meta-func should contain a in its environment.
+            TruFunc generatedFunc = TruExpr.Parse("{meta-func true}").Interpret(testEnv) as TruFunc;
+            Assert.That( generatedFunc, Is.Not.EqualTo(null));
+            Assert.That( generatedFunc.env.Find("a"), Is.EqualTo( new TruBool(true) ));
+        }
+
+        // [Test]
+        // public void TestTruLet() {
+        //     Assert.That( TruExpr.Parse(
+        //         @"{let {[var1 false] [var2 true]}
+        //             {and var1 var2}
+        //           }").Interpret(),
         //         Is.EqualTo( new TruBool(false) ));
-        //     Assert.That( TruExpr.Parse("y").Interpret(testEnv),
-        //         Is.EqualTo( new TruBool(false) ));
-        //     Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{y}").Interpret(testEnv) ); // not callable.
-        //     Assert.That( TruExpr.Parse("{{meta-func true}}").Interpret(testEnv),
+
+        //     Assert.That( TruExpr.Parse(
+        //         @"{let { [ my-func {lambda {a b} {and a b}} ] }
+        //             {my-func true true}
+        //           }").Interpret(),
         //         Is.EqualTo( new TruBool(true) ));
 
+        //     Assert.That( TruExpr.Parse(
+        //         @"{let {}
+        //             true
+        //           }").Interpret(),
+        //         Is.EqualTo( new TruBool(true) ));
 
-            // Assert.That( TruExpr.Parse(
-            //     @"{let {[var1 false] [var2 true]}
-            //         {and var1 var2}
-            //       }").Interpret(),
-            //     Is.EqualTo( new TruBool(false) ));
-
-            // Assert.That( TruExpr.Parse(
-            //     @"{let { [ my-func {lambda {a b} {and a b}} ] }
-            //         {my-func true true}
-            //       }").Interpret(),
-            //     Is.EqualTo( new TruBool(true) ));
-
-            // Assert.That( TruExpr.Parse(
-            //     @"{let {}
-            //         true
-            //       }").Interpret(),
-            //     Is.EqualTo( new TruBool(true) ));
-
-            // Assert.That( TruExpr.Parse( // insure that the captured environment is separate from outer.
-            //     @"{let { [a false] [my-func {meta-func true}]}
-            //         {my-func}
-            //       }").Interpret(testEnv),
-            //     Is.EqualTo( new TruBool(true) ));
+        //     Assert.That( TruExpr.Parse( // insure that the captured environment is separate from outer.
+        //         @"{let { [a false] [my-func {meta-func true}]}
+        //             {my-func}
+        //           }").Interpret(testEnv),
+        //         Is.EqualTo( new TruBool(true) ));
         // }
 
         // [Test]

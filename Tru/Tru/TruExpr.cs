@@ -5,27 +5,44 @@ namespace Tru {
 
     /// Represents an expression in the Tru Language.
     public abstract class TruExpr {
+        public static string[] ReservedWords {get; private set;} = {"lambda", "let", "true", "false"};
+
         /// Parses a string into Tru abstract syntax that can be interpreted.
         public static TruExpr Parse(string code) { return ParseHelper( ExprTree.Parse(code) ); }
 
         private static TruExpr ParseHelper(ExprTree expr) {
             if (expr is ExprLiteral exprLit) {
-                if ( ExprTree.Match("true", expr) ) {
+
+                if ( ExprTree.Match("true", exprLit) ) {
                     return new TruBool(true);
-                } else if ( ExprTree.Match("false", expr) ) {
+                } else if ( ExprTree.Match("false", exprLit) ) {
                     return new TruBool(false);
-                } else {
+                } else if (TruId.IsValidIdentifier(exprLit.val)) {
                     return new TruId(exprLit.val);
+                } else {
+                    throw new System.ArgumentException($"Can't use {exprLit.val} as an identifier.");
                 }
+
             } else if (expr is ExprList exprList && exprList.list.Length > 0) { // cast expr into exprList
 
-                TruExpr[] args = new TruExpr[exprList.list.Length - 1];
-                for (int i = 0; i < exprList.list.Length - 1; i++) { // Parse all but first in list into arguments
-                    args[i] = ParseHelper(exprList.list[i + 1]);
+                if (ExprTree.Match("{lambda {LITERAL ...} ANY}", exprList)) {
+                    ExprTree[] paramExprs = ((ExprList) exprList.list[1]).list;
+                    string[] parameters = Array.ConvertAll(paramExprs, (p) => ((ExprLiteral) p).val);
+
+                    if ( Array.TrueForAll(parameters, (p) => TruId.IsValidIdentifier(p)) ) {
+                        return new TruLambda( parameters, ParseHelper(exprList.list[2]) );
+                    } else {
+                        throw new System.ArgumentException($"Can't use reserved words as parameters.");
+                    }
+
+                } else {
+                    TruExpr[] args = new TruExpr[exprList.list.Length - 1];
+                    for (int i = 0; i < exprList.list.Length - 1; i++) { // Parse all but first in list into arguments
+                        args[i] = ParseHelper(exprList.list[i + 1]);
+                    }
+
+                    return new TruCall(ParseHelper(exprList.list[0]), args);
                 }
-
-                return new TruCall(ParseHelper(exprList.list[0]), args);
-
             }
 
             throw new System.ArgumentException("Invalid syntax.");
@@ -79,12 +96,12 @@ namespace Tru {
     public class TruFunc : TruCallable {
         public string[] parameters;
         public TruExpr body;
-        public Environment env; // Lambda closures.
+        public Environment env; // closures.
 
-        public TruFunc(string[] parameters, TruExpr body, Environment env = null) {
+        public TruFunc(string[] parameters, TruExpr body, Environment env) {
             this.parameters = parameters;
             this.body = body;
-            this.env = env ?? new Environment();
+            this.env = env;
         }
 
         public override TruVal call(Environment env, TruExpr[] args) {
@@ -105,7 +122,7 @@ namespace Tru {
         }
 
         public override string ToString() {
-            return "{lambda {" + string.Join(" ", this.parameters) + "} " + body + "}";
+            return "function {" + string.Join(" ", this.parameters) + "}";
         }
 
         public override bool Equals(object obj) {
@@ -118,6 +135,12 @@ namespace Tru {
     public class TruId : TruExpr {
         public string name;
         public TruId(string name) { this.name = name; }
+
+        /// Returns true if the string is a valid identifier in the tru language.
+        public static bool IsValidIdentifier(string id) {
+            return Array.IndexOf(ReservedWords, id) < 0;
+        }
+
         public override TruVal Interpret(Environment env) { return env.Find(this.name); }
 
         public override string ToString() { return this.name; }
@@ -130,7 +153,7 @@ namespace Tru {
         public TruExpr[] args;
         public TruCall(TruExpr func, TruExpr[] args) { this.func = func; this.args = args; }
         public override TruVal Interpret(Environment env) {
-            TruVal funcVal = func.Interpret(env);
+            TruVal funcVal = this.func.Interpret(env);
 
             if (funcVal is TruCallable callable) {
                 return callable.call(env, this.args);
@@ -147,4 +170,27 @@ namespace Tru {
         }
     }
 
+    /// Represents a lambda expression (which should evaluate to a TruFunc)
+    public class TruLambda : TruExpr {
+        public string[] parameters;
+        public TruExpr body;
+
+        public TruLambda(string[] parameters, TruExpr body) {
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        public override TruVal Interpret(Environment env) {
+            return new TruFunc(this.parameters, this.body, env);
+        }
+
+        public override string ToString() {
+            return "{lambda {" + string.Join(" ", this.parameters) + "} " + body + "}";
+        }
+
+        public override bool Equals(object obj) {
+            return obj is TruLambda truLam && Helpers.ArrayEquals(this.parameters, truLam.parameters) &&
+                this.body.Equals(truLam.body);
+        }
+    }
 }
