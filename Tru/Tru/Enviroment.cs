@@ -1,5 +1,6 @@
 using System.Collections;
 
+#pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
 namespace Tru {
     /// Represents the environment of a Tru program as a mapping of names to values.
     public class Environment {

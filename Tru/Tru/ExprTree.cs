@@ -1,5 +1,6 @@
 using Utility;
 
+#pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
 namespace Tru {
     public abstract class ExprTree {
         private static string opening = "{[(";

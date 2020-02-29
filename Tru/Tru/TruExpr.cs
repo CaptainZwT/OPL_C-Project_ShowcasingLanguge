@@ -1,6 +1,7 @@
 ﻿using Utility;
 using System; // For array
 
+#pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
 namespace Tru {
 
     /// Represents an expression in the Tru Language.
@@ -144,7 +145,7 @@ namespace Tru {
         public override TruVal Interpret(Environment env) { return env.Find(this.name); }
 
         public override string ToString() { return this.name; }
-        public override bool Equals(object obj) { return obj is TruId truid && this.name == truid.name; }
+        public override bool Equals(object obj) { return obj is TruId truId && this.name == truId.name; }
     }
 
     /// Represents a call to a function or a built-in
