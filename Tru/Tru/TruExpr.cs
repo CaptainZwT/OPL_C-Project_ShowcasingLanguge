@@ -3,6 +3,29 @@ using System; // For array
 
 #pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
 namespace Tru {
+    /// The definitions of the abstract syntax for the Tru language.
+    /// Basic outline
+    /// TruExpr (abstract)
+    ///     TruVal (abstract)
+    ///         TruBool
+    ///         TruCallable
+    ///             TruBuiltIn
+    ///             TruFunc
+    ///     TruId
+    ///     TruCall
+    ///     TruLambda
+    ///     TruLet
+
+    /// Concrete syntax is described in (Extended) Backus-Naur Form
+    /// <character> ::= "A" | "B" | "C" ... "a" | "b" | "c" ... "0" | "1" | "2" ... "!" | "@" | "#" | "$" | "%" | "^" ...
+    /// <expression> ::= <bool> | <id> | <call> | <lambda> | <let>
+    /// <bool> ::= "true" | "false"
+    /// <id>   ::= <character> {<character>}
+    /// <call> ::= "{" <expression> {<expression>} "}"
+    /// <lambda> ::= "{" "lambda" "{" {<id>} "}" <expression> "}"
+    /// <binding> ::= "[" <id> <expr> "]"
+    /// <let> ::= "{" "let" "{" {<binding>} "}" <expr> "}"
+
 
     /// Represents an expression in the Tru Language.
     public abstract class TruExpr {
