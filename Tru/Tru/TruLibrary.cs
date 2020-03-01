@@ -1,36 +1,52 @@
-﻿using System; // For array.
+using System; // For array.
 
 namespace Tru {
     /// Contains the default standard library.
     public static class TruLibrary {
 
-        private static TruVal nand(Environment env, TruExpr[] parameters) {
-            if (parameters.Length == 2 && parameters[0].Interpret(env) is TruBool a && parameters[1].Interpret(env) is TruBool b) {
+        private static TruVal nand(Environment env, TruExpr[] parms) {
+            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
                 return new TruBool( !(a.val && b.val) );
             } else {
                 throw new System.ArgumentException("Invalid types or parameter count.");
             }
         }
 
-        private static TruVal and(Environment env, TruExpr[] parameters) {
-            if (parameters.Length == 2 && parameters[0].Interpret(env) is TruBool a && parameters[1].Interpret(env) is TruBool b) {
+        private static TruVal and(Environment env, TruExpr[] parms) {
+            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
                 return new TruBool( a.val && b.val );
             } else {
                 throw new System.ArgumentException("Invalid types or parameter count.");
             }
         }
 
-        private static TruVal or(Environment env, TruExpr[] parameters) {
-            if (parameters.Length == 2 && parameters[0].Interpret(env) is TruBool a && parameters[1].Interpret(env) is TruBool b) {
+        private static TruVal or(Environment env, TruExpr[] parms) {
+            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
                 return new TruBool( a.val || b.val );
             } else {
                 throw new System.ArgumentException("Invalid types or parameter count.");
             }
         }
 
-        private static TruVal not(Environment env, TruExpr[] parameters) {
-            if (parameters.Length == 1 && parameters[0].Interpret(env) is TruBool a) {
+        private static TruVal not(Environment env, TruExpr[] parms) {
+            if (parms.Length == 1 && parms[0].Interpret(env) is TruBool a) {
                 return new TruBool( !a.val );
+            } else {
+                throw new System.ArgumentException("Invalid types or parameter count.");
+            }
+        }
+
+        private static TruVal equals(Environment env, TruExpr[] parms) {
+            if (parms.Length == 2) { // equals will work on all types, and returns a TruBool
+                return new TruBool( parms[0].Interpret(env).Equals(parms[1].Interpret(env)) );
+            } else {
+                throw new System.ArgumentException("Invalid types or parameter count.");
+            }
+        }
+
+        private static TruVal ifStatement(Environment env, TruExpr[] parms) {
+            if (parms.Length == 3 && parms[0].Interpret(env) is TruBool cond) {
+                return cond.val ? parms[1].Interpret(env) : parms[2].Interpret(env);
             } else {
                 throw new System.ArgumentException("Invalid types or parameter count.");
             }
@@ -39,10 +55,12 @@ namespace Tru {
 
 
         private static (string name, TruBuiltIn.TruOperation op)[] _builtins = new (string, TruBuiltIn.TruOperation)[] {
-            ("nand", nand),
-            ("and",  and),
-            ("or",   or),
-            ("not",  not),
+            ("nand",    nand),
+            ("and",     and),
+            ("or",      or),
+            ("not",     not),
+            ("equals",  equals),
+            ("if",      ifStatement)
         };
 
         // private static (string name, string def)[] _library = new (string, string)[] {

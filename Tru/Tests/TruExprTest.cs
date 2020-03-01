@@ -280,36 +280,36 @@ namespace Tests
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{let {x 3} x}").Interpret(testEnv) );
         }
 
-        // [Test]
-        // public void Test4WayMultiplexer() {
-        //     string program =
-        //         @"{let {[multiplex4 ; Declare a 4-way multiplexer function and test it on multiple inputs, should return true if the tests pass.
-        //             {lambda {s0 s1 i0 i1 i2 i3}
-        //                 {let {[multiplex2 ; make a 2-way multiplex and combine them for the 4-way
-        //                     {lambda {s0 i0 i1} {or {and {not s0} i0} {and s0 i1}}} ]}
-        //                 {multiplex2 s1
-        //                             {multiplex2 s0 i0 i1}
-        //                             {multiplex2 s0 i2 i3}}}}]}
+        [Test]
+        public void Test4WayMultiplexer() {
+            string program =
+                @"{let {[multiplex4 ; Declare a 4-way multiplexer function and test it on multiple inputs, should return true if the tests pass.
+                    {lambda {s0 s1 i0 i1 i2 i3}
+                        {let {[multiplex2 ; make a 2-way multiplex and combine them for the 4-way
+                            {lambda {s0 i0 i1} {or {and {not s0} i0} {and s0 i1}}} ]}
+                                {multiplex2 s1
+                                    {multiplex2 s0 i0 i1}
+                                    {multiplex2 s0 i2 i3}}}}]}
 
-        //             {and ; test the multiplexer
-        //                 {and
-        //                 {and
-        //                     {equals {multiplex4 false false  false false true false} false}
-        //                     {equals {multiplex4 false false  true false false false} true }}
-        //                 {and
-        //                     {equals {multiplex4 false true   false false false true} false}
-        //                     {equals {multiplex4 false true   true true true true}    true }}}
-        //                 {and
-        //                 {and
-        //                     {equals {multiplex4 true false   false false false true} false}
-        //                     {equals {multiplex4 true false   false true true false}  true }}
-        //                 {and
-        //                     {equals {multiplex4 true true    true false false false} false}
-        //                     {equals {multiplex4 true true    false true false true}  true }}}}";
+                    {and ; test the multiplexer
+                        {and
+                        {and
+                            {equals {multiplex4 false false  false false true false} false}
+                            {equals {multiplex4 false false  true false false false} true }}
+                        {and
+                            {equals {multiplex4 false true   false false false true} false}
+                            {equals {multiplex4 false true   true true true true}    true }}}
+                        {and
+                        {and
+                            {equals {multiplex4 true false   false false false true} false}
+                            {equals {multiplex4 true false   false true true false}  true }}
+                        {and
+                            {equals {multiplex4 true true    true false false false} false}
+                            {equals {multiplex4 true true    false true false true}  true }}}}}";
 
 
 
-        //     Assert.That( TruExpr.Parse(program).Interpret(), Is.EqualTo( new TruBool(true) ));
-        // }
+            Assert.That( TruExpr.Parse(program).Interpret(), Is.EqualTo( new TruBool(true) ));
+        }
     }
 }

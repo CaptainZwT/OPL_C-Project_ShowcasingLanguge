@@ -6,6 +6,7 @@ namespace Tru {
         private static string opening = "{[(";
         private static string closing = "}])";
         private static string whitespace = " \r\n\t";
+        private static char comment = ';';
 
 
         /// Splits the string into tokens. Tokens are seperated by spaces, and braces are always a token by themselves.
@@ -13,7 +14,9 @@ namespace Tru {
             List<string> tokens = new List<string>();
             string token = "";
 
-            foreach (char c in code) {
+            for (int i = 0; i < code.Length; i++) {
+                char c = code[i];
+
                 if (whitespace.Contains(c)) {
                     if (token != "") tokens.Add(token);
                     token = "";
@@ -21,6 +24,9 @@ namespace Tru {
                     if (token != "") tokens.Add(token);
                     tokens.Add( c.ToString() ); // Add the bracket as its own token.
                     token = "";
+                } else if (comment == c) {
+                    while (i < code.Length && code[i] != '\n') // skip to end of line.
+                        i++;
                 } else {
                     token += c;
                 }

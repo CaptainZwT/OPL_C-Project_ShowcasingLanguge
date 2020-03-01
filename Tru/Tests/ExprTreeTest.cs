@@ -70,11 +70,11 @@ namespace Tests
             Assert.That(ExprTree.Tokenize(""),
                 Is.EqualTo( new List<string>{} ));
 
-            // Assert.That(ExprTree.Tokenize(
-            //     @"{a; this is a comment
-            //         {nested} ; another comment}
-            //     list}"),
-            //     Is.EqualTo( new List<string>{"{", "a", "{", "nested", "}", "list", "}"} ));
+            Assert.That(ExprTree.Tokenize(
+                @"{a; this is a comment
+                    {nested} ; another comment}
+                list}"),
+                Is.EqualTo( new List<string>{"{", "a", "{", "nested", "}", "list", "}"} ));
         }
 
 
