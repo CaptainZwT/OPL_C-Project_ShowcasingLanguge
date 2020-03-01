@@ -18,25 +18,11 @@ namespace Tests
             Assert.True(  TruLibrary.library.Find("and").Equals(TruLibrary.library.Find("and")) );
             Assert.False( TruLibrary.library.Find("and").Equals(TruLibrary.library.Find("or"))  );
 
-
-            TruFunc func0 = new TruFunc(new string[] {},    new TruBool(false), TruLibrary.library);
-            TruFunc func1 = new TruFunc(new string[] {"x"}, new TruId("x"), TruLibrary.library);
-            TruFunc func2 = new TruFunc(new string[] {"x"}, new TruId("x"), TruLibrary.library);
-            TruFunc func3 = new TruFunc(new string[] {"x"}, new TruId("x"), new Environment());
-            TruFunc func4 = new TruFunc(new string[] {"x"}, new TruId("y"), TruLibrary.library);
-
-            Assert.True(func1.Equals(func2));
-            Assert.False(func0.Equals(func1));
-            Assert.False(func1.Equals(func3));
-            Assert.False(func1.Equals(func4));
-            Assert.False(func1.Equals(func0));
-
             TruLambda lamb0 = new TruLambda(new string[] {"x"}, new TruId("x"));
             TruLambda lamb1 = new TruLambda(new string[] {"x"}, new TruId("x"));
-            TruLambda lamb2 = new TruLambda(new string[] {}, new TruId("x"));
+            TruLambda lamb2 = new TruLambda(new string[] {},    new TruId("x"));
             TruLambda lamb3 = new TruLambda(new string[] {"y"}, new TruId("x"));
             TruLambda lamb4 = new TruLambda(new string[] {"x"}, new TruId("y"));
-
 
             Assert.True(lamb0.Equals(lamb1));
             Assert.False(lamb0.Equals(lamb2));
@@ -216,13 +202,11 @@ namespace Tests
 
         [Test]
         public void TestTruLambdas() {
-            Assert.That( TruExpr.Parse("{lambda {a b} a}").Interpret(), // Interprets to a lambda.
-                Is.EqualTo( new TruFunc(new string[] {"a", "b"}, new TruId("a"), TruLibrary.library) ));
-
-            Assert.That( TruExpr.Parse("{lambda {} {and false true}}").Interpret(),
-                Is.EqualTo( new TruFunc(new string[] {},
-                    new TruCall(new TruId("and"), new[] { new TruBool(false), new TruBool(true) }),
-                    TruLibrary.library) ));
+            TruFunc func0 = (TruFunc) TruExpr.Parse("{lambda {a b} a}").Interpret();
+            TruFunc func1 = (TruFunc) TruExpr.Parse("{lambda {} {and false true}}").Interpret();
+            Assert.That( func0.parameters, Is.EqualTo( new string[] {"a", "b"} ) );
+            Assert.That( func0.body, Is.EqualTo( new TruId("a") ) );
+            Assert.That( func1.parameters, Is.EqualTo( new string[] {} ) );
 
             Assert.That( TruExpr.Parse("{{lambda {x} x} false}").Interpret(),
                 Is.EqualTo( new TruBool(false) ));

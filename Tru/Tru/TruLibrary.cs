@@ -1,4 +1,4 @@
-using System; // For array.
+﻿using System; // For array.
 
 namespace Tru {
     /// Contains the default standard library.
@@ -36,7 +36,7 @@ namespace Tru {
             }
         }
 
-        private static TruVal equals(Environment env, TruExpr[] parms) {
+        private static TruVal equals(Environment env, TruExpr[] parms) { // for bools, same as xnor, but this way it works for other types.
             if (parms.Length == 2) { // equals will work on all types, and returns a TruBool
                 return new TruBool( parms[0].Interpret(env).Equals(parms[1].Interpret(env)) );
             } else {
@@ -63,15 +63,13 @@ namespace Tru {
             ("if",      ifStatement)
         };
 
-        // private static (string name, string def)[] _library = new (string, string)[] {
-        //     ("identity", "{lambda {x} x}"),
-        //     ("nor",      "{lambda {a b} {not {or a b}}}"),
-        //     ("xor",      "{lambda {a b} {and {or a b} {nand a b}}}"),
-        //     ("xnor",     "{lambda {a b} {not {xor a b}}}"),
-        //     ("implies",  "{lambda {a b} {or {not a} b}}"),
-        //     ("equals",   "{lambda {a b} {xnor a b}}"),
-        //     ("majority", "{lambda {a b c} {or {or {and a b} {and a c}} {and b c}}})))"),
-        // };
+        private static (string name, string def)[] _library = new (string, string)[] {
+            ("nor",      "{lambda {a b} {not {or a b}}}"),
+            ("xor",      "{lambda {a b} {and {or a b} {nand a b}}}"),
+            ("xnor",     "{lambda {a b} {not {xor a b}}}"),
+            ("implies",  "{lambda {a b} {or  {not a} b}}"),
+            ("majority", "{lambda {a b c} {or {or {and a b} {and a c}} {and b c}}}"),
+        };
 
 
         public static Environment library;
@@ -79,16 +77,12 @@ namespace Tru {
         /// Parses and combines _builtins and _library into library.
         static TruLibrary() {
             library = new Environment(
-                Array.ConvertAll(_builtins, (x) => (x.name, (TruVal) new TruBuiltIn(x.op)))
+                Array.ConvertAll(_builtins, (func) => (func.name, (TruVal) new TruBuiltIn(func.op)) )
             );
 
-            // (string, TruVal)[] libraryParsed = new (string, TruVal)[_library.Length];
-            // for (int i = 0; i < _library.Length; i++) {
-            //     TruVal func = TruExpr.Parse(_library[i].def).Interpret(library); // All standard library functions have the entire standard library in scope.
-            //     libraryParsed[i] = (_library[i].name, func);
-            // }
-
-            // library.Add(Environment.MakeEnv(libraryParsed)); // add to standard library. This mutates it so that all the functions will have the entire library.
+            library.AddAll(new Environment( // Add to library, all funcs in library have access to all other funcs.
+                Array.ConvertAll(_library,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(library)) )
+            ));
         }
     }
 }

@@ -1,6 +1,3 @@
-using System.Collections;
-
-#pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
 namespace Tru {
     /// Represents the environment of a Tru program as a mapping of names to values.
     public class Environment {
@@ -27,22 +24,6 @@ namespace Tru {
                     node = new Node(binding.name, binding.val, node);
 
             this.list = node;
-        }
-
-        public override bool Equals(object obj) {
-            if (obj is Environment env) {
-                Node thisNode = this.list;  Node otherNode = env.list;
-
-                while (thisNode != null && otherNode != null) {
-                    if (thisNode.name != otherNode.name || !thisNode.val.Equals(otherNode.val))
-                        return false;
-
-                    thisNode = thisNode.next;  otherNode = otherNode.next;
-                }
-                return thisNode == otherNode; // At least one is null, if both are null list are equal.
-            } else {
-                return false;
-            }
         }
 
         /// Returns the value corresponding to name in the enviroment, or throws an exception if

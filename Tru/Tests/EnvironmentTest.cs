@@ -35,31 +35,5 @@ namespace Tests
             empty.Add("d", new TruBool(true)); // make sure that empty doesn't crash when added to.
             Assert.That(empty.Find("d"), Is.EqualTo(new TruBool(true)));
         }
-
-        [Test]
-        public void TestEnvironmentEquals() {
-            Environment env1 = new Environment( new (string, TruVal)[] {
-                ("a", new TruBool(true) ),
-                ("b", new TruBool(false)),
-            });
-            Environment env2 = new Environment( new (string, TruVal)[] {
-                ("c", new TruBool(false)),
-            });
-            Environment env3 = new Environment( new (string, TruVal)[] {
-                ("a", new TruBool(true)),
-                ("b", new TruBool(false)),
-            });
-            Environment env4 = new Environment( new (string, TruVal)[] {
-                ("a", new TruBool(false)),
-                ("b", new TruBool(false)),
-            });
-            Environment empty = new Environment();
-
-            Assert.True(env1.Equals(env3));
-            Assert.False(env1.Equals(env2));
-            Assert.False(env2.Equals(env1));
-            Assert.False(env1.Equals(env4));
-            Assert.True(empty.Equals( new Environment() ));
-        }
     }
 }

@@ -139,11 +139,7 @@ namespace Tru {
         public override string ToString() {
             return "function {" + string.Join(" ", this.parameters) + "}";
         }
-
-        public override bool Equals(object obj) {
-            return obj is TruFunc truFunc && Helpers.ArrayEquals(this.parameters, truFunc.parameters) &&
-                this.body.Equals(truFunc.body) && this.env.Equals(truFunc.env);
-        }
+        // Comparing lambdas doesn't make much sense, so leaving the default equals which only checks if the same object.
     }
 
     /// Represents a binding to a value.
