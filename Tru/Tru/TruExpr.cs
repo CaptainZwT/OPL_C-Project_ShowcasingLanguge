@@ -1,4 +1,4 @@
-﻿using Utility;
+using Utility;
 using System; // For array
 
 #pragma warning disable CS0659 // Silence "overrides Equals() but not GetHashCode()" warnings
@@ -20,11 +20,11 @@ namespace Tru {
     /// <character> ::= "A" | "B" | "C" ... "a" | "b" | "c" ... "0" | "1" | "2" ... "!" | "@" | "#" | "$" | "%" | "^" ...
     /// <expression> ::= <bool> | <id> | <call> | <lambda> | <let>
     /// <bool> ::= "true" | "false"
-    /// <id>   ::= <character> {<character>}
-    /// <call> ::= "{" <expression> {<expression>} "}"
-    /// <lambda> ::= "{" "lambda" "{" {<id>} "}" <expression> "}"
+    /// <id>   ::= <character>+
+    /// <call> ::= "{" <expression> <expression>* "}"
+    /// <lambda> ::= "{" "lambda" "{" <id>* "}" <expression> "}"
     /// <binding> ::= "[" <id> <expr> "]"
-    /// <let> ::= "{" "let" "{" {<binding>} "}" <expr> "}"
+    /// <let> ::= "{" "let" "{" <binding>* "}" <expression> "}"
 
 
     /// Represents an expression in the Tru Language.
