@@ -10,9 +10,24 @@ namespace Tru {
                 this.name = name; this.val = val; this.next = next;
             }
 
+            /// Makes a complete copy of the linked list.
+            public Node Copy() {
+                return new Node(this.name, this.val, (this.next != null) ? this.next.Copy() : null);
+            }
+
+            /// Returns the last node in the linked list.
+            public Node Head() {
+                Node current = this;
+                while (current.next != null)
+                    current = current.next;
+                return current;
+            }
+
         }
 
         private Node list;
+
+        private Environment(Node list) { this.list = list; }
 
         /// Creates an environment from a list of (string, TruVal) tuples.
         /// Values later in bindings are "higher" priority in case of name conflicts.
@@ -43,27 +58,42 @@ namespace Tru {
 
         }
 
-        /// Joins other to this environment. This will be mutated but not other.
-        /// In case of name conflicts, bindings in this will be higher priority than those in others.
-        public void AddAll(Environment other) {
-            if (this.list == null) { // just set this list to other list.
-                this.list = other.list;
+        /// Create a new environment with the given binding added. Returns the new environment.
+        /// The new binding will be higher priority than the old ones.
+        public Environment ExtendLocal(string name, TruVal val) { // basically cons function
+            return new Environment( new Node(name, val, this.list) );
+        }
+
+        /// Returns a new environment that contains all the bindings in this and env.
+        /// Bindings in env will be higher priority than those in this.
+        public Environment ExtendLocalAll(Environment env) {
+            if (env.list != null) {
+                Node newList = env.list.Copy();
+                newList.Head().next = this.list;
+                return new Environment(newList);
             } else {
-                Node currentNode = this.list;
-
-                while (currentNode.next != null) {
-                    currentNode = currentNode.next;
-                }
-
-                currentNode.next = other.list;
+                return new Environment(this.list); // appending an empty environment does nothing.
             }
         }
 
-        /// Adds one binding to this environment.
-        /// The original bindings will be higher priority than the new ones.
-        /// Like plait/lisp cons.
-        public void Add(string name, TruVal val) {
-            this.AddAll( new Environment( new[] {(name, val)} ) );
+
+        /// Modifies the current environment to contain a new binding.
+        /// The same as ExtendLocal, except it mutates this instead of returning a new environment
+        /// The new binding will be higher priority than the old ones.
+        public void ExtendGlobal(string name, TruVal val) {
+            this.list = new Node(name, val, this.list);
+        }
+
+        /// Modifies the current environment to contain a new binding.
+        /// The same as ExtendLocal, except it mutates this instead of returning a new environment
+        /// The new binding will be higher priority than the old ones.
+        public void ExtendGlobal(Environment env) {
+            if (env.list != null) {
+                Node newList = env.list.Copy();
+                newList.Head().next = this.list;
+                this.list = newList;
+            }
+            // appending an empty environment does nothing.
         }
     }
 }

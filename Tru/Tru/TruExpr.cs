@@ -144,13 +144,12 @@ namespace Tru {
 
         public override TruVal call(Environment env, TruExpr[] args) {
             if (this.parameters.Length == args.Length) {
-
-                Environment localEnv = new Environment();
-                for (int i = 0; i < args.Length; i++) {
-                    localEnv.Add(this.parameters[i], args[i].Interpret(env));
+                
+                Environment localEnv = this.env;
+                for (int i = 0; i < args.Length; i++) { // add the args to the environment.
+                    localEnv = localEnv.ExtendLocal(this.parameters[i], args[i].Interpret(env));
                 }
 
-                localEnv.AddAll(this.env);
                 return this.body.Interpret(localEnv);
 
             } else {
@@ -234,10 +233,10 @@ namespace Tru {
         }
 
         public override TruVal Interpret(Environment env) {
-            Environment localEnv = new Environment(
+            Environment localEnv = env.ExtendLocalAll(new Environment(
                 Array.ConvertAll(this.locals, (loc) => (loc.name, loc.expr.Interpret(env)))
-            );
-            localEnv.AddAll(env);
+            ));
+
             return this.body.Interpret(localEnv);
         }
 

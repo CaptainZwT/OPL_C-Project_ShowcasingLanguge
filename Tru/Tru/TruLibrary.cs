@@ -80,7 +80,7 @@ namespace Tru {
                 Array.ConvertAll(_builtins, (func) => (func.name, (TruVal) new TruBuiltIn(func.op)) )
             );
 
-            library.AddAll(new Environment( // Add to library, all funcs in library have access to all other funcs.
+            library.ExtendGlobal(new Environment( // Add to library, all funcs in library have access to all other funcs.
                 Array.ConvertAll(_library,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(library)) )
             ));
         }

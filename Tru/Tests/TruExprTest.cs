@@ -214,13 +214,12 @@ namespace Tests
 
         [Test]
         public void TestTruComplexInterpret() {
-            Environment testEnv = new Environment( new[]{
+            Environment testEnv = TruLibrary.library.ExtendLocalAll(new Environment( new[]{
                 ("y", new TruBool(false)),
                 ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
                 ("good-func", TruExpr.Parse("{lambda {x} x}").Interpret()),
                 ("meta-func", TruExpr.Parse("{lambda {a} {lambda {} a}}").Interpret()) // returns a lambda that captured a.
-            });
-            testEnv.AddAll(TruLibrary.library);
+            }));
 
             /// y should be not found, since it isn't in the lambda's scope.
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
