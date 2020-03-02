@@ -2,27 +2,18 @@ namespace Tru {
     /// Represents the environment of a Tru program as a mapping of names to values.
     public class Environment {
         private class Node {
-            public string name;
-            public TruVal val;
-            public Node next; // Environment will be a linked list.
+            public readonly string name;
+            public readonly TruVal val;
+            public readonly Node next; // Environment will be a linked list.
 
             public Node(string name, TruVal val, Node next) {
                 this.name = name; this.val = val; this.next = next;
             }
 
-            /// Makes a complete copy of the linked list.
-            public Node Copy() {
-                return new Node(this.name, this.val, (this.next != null) ? this.next.Copy() : null);
+            /// Makes creates a new list that is the joining of this and other. This will come before other.
+            public Node Append(Node other) {
+                return new Node(this.name, this.val, (this.next != null) ? this.next.Append(other) : other);
             }
-
-            /// Returns the last node in the linked list.
-            public Node Head() {
-                Node current = this;
-                while (current.next != null)
-                    current = current.next;
-                return current;
-            }
-
         }
 
         private Node list;
@@ -68,8 +59,7 @@ namespace Tru {
         /// Bindings in env will be higher priority than those in this.
         public Environment ExtendLocalAll(Environment env) {
             if (env.list != null) {
-                Node newList = env.list.Copy();
-                newList.Head().next = this.list;
+                Node newList = env.list.Append(this.list);
                 return new Environment(newList);
             } else {
                 return new Environment(this.list); // appending an empty environment does nothing.
@@ -89,9 +79,7 @@ namespace Tru {
         /// The new binding will be higher priority than the old ones.
         public void ExtendGlobal(Environment env) {
             if (env.list != null) {
-                Node newList = env.list.Copy();
-                newList.Head().next = this.list;
-                this.list = newList;
+                this.list = env.list.Append(this.list);
             }
             // appending an empty environment does nothing.
         }
