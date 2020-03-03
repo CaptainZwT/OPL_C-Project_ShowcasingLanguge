@@ -35,6 +35,12 @@ namespace Tru {
     public abstract class TruStatement {
         public static string[] ReservedWords {get; private set;} = {"lambda", "let", "define", "true", "false"};
 
+        /// Parses and Interprets a string. Environment defaults to the standard library.
+        public static TruVal Interpret(string code, Environment env = null) {
+            env = env ?? TruLibrary.Library;
+            return TruStatement.Parse(code).Interpret(env);
+        }
+
         /// Interprets a TruExpr with the standard library.
         public TruVal Interpret() { return this.Interpret(TruLibrary.Library); }
 

@@ -13,23 +13,23 @@ namespace Tests
 
         [Test]
         public void TestBuiltIns() {
-            Assert.That( TruExpr.Parse("{nand true true}").Interpret(),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{and  true true}").Interpret(),   Is.EqualTo(new TruBool(true)));
-            Assert.That( TruExpr.Parse("{or   false false}").Interpret(), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{not  true}").Interpret(),        Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{equals true true}").Interpret(), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruExpr.Parse("{equals {lambda {} true} {lambda {} true}}").Interpret(), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{let {[f {lambda {} true}]} {equals f f}}").Interpret(), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruExpr.Parse("{if true true false}").Interpret(), Is.EqualTo(new TruBool(true)));
+            Assert.That( TruStatement.Interpret("{nand true true}"),   Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{and  true true}"),   Is.EqualTo(new TruBool(true)));
+            Assert.That( TruStatement.Interpret("{or   false false}"), Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{not  true}"),        Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{equals true true}"), Is.EqualTo(new TruBool(true)));
+            Assert.That( TruStatement.Interpret("{equals {lambda {} true} {lambda {} true}}"), Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{let {[f {lambda {} true}]} {equals f f}}"), Is.EqualTo(new TruBool(true)));
+            Assert.That( TruStatement.Interpret("{if true true false}"), Is.EqualTo(new TruBool(true)));
         }
 
         [Test]
         public void TestLibrary() {
-            Assert.That( TruExpr.Parse("{nor  true true}").Interpret(),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{xor  true true}").Interpret(),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{xnor false false}").Interpret(), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruExpr.Parse("{implies true false}").Interpret(), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruExpr.Parse("{majority true false false}").Interpret(), Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{nor  true true}"),   Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{xor  true true}"),   Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{xnor false false}"), Is.EqualTo(new TruBool(true)));
+            Assert.That( TruStatement.Interpret("{implies true false}"), Is.EqualTo(new TruBool(false)));
+            Assert.That( TruStatement.Interpret("{majority true false false}"), Is.EqualTo(new TruBool(false)));
         }
     }
 }

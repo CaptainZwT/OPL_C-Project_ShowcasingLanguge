@@ -145,7 +145,7 @@ namespace Tests
                     new TruBool(true)
                  })));
 
-            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{}").Interpret() ); // Can't have an empty call.
+            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{}") ); // Can't have an empty call.
 
 
             Assert.That( TruExpr.Parse("{lambda {a b} a}"),
@@ -203,31 +203,31 @@ namespace Tests
             Assert.That( TruExpr.Parse("true").Interpret(),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse("false").Interpret(),
+            Assert.That( TruStatement.Interpret("false"),
                 Is.EqualTo( new TruBool(false) ));
 
-            Assert.That( TruExpr.Parse("{and true true}").Interpret(),
+            Assert.That( TruStatement.Interpret("{and true true}"),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse("{and {not false} true}").Interpret(),
+            Assert.That( TruStatement.Interpret("{and {not false} true}"),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and true true true}").Interpret() );
-            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and}").Interpret() );
+            Assert.Throws<System.ArgumentException>( () => TruStatement.Interpret("{and true true true}") );
+            Assert.Throws<System.ArgumentException>( () => TruStatement.Interpret("{and}") );
 
-            Assert.That( TruExpr.Parse("and").Interpret(),
+            Assert.That( TruStatement.Interpret("and"),
                 Is.EqualTo( TruLibrary.Library.Find("and") ));
         }
 
         [Test]
         public void TestTruLambdas() {
-            TruFunc func0 = (TruFunc) TruExpr.Parse("{lambda {a b} a}").Interpret();
-            TruFunc func1 = (TruFunc) TruExpr.Parse("{lambda {} {and false true}}").Interpret();
+            TruFunc func0 = (TruFunc) TruStatement.Interpret("{lambda {a b} a}");
+            TruFunc func1 = (TruFunc) TruStatement.Interpret("{lambda {} {and false true}}");
             Assert.That( func0.parameters, Is.EqualTo( new string[] {"a", "b"} ) );
             Assert.That( func0.body, Is.EqualTo( new TruId("a") ) );
             Assert.That( func1.parameters, Is.EqualTo( new string[] {} ) );
 
-            Assert.That( TruExpr.Parse("{{lambda {x} x} false}").Interpret(),
+            Assert.That( TruStatement.Interpret("{{lambda {x} x} false}"),
                 Is.EqualTo( new TruBool(false) ));
         }
 
@@ -235,51 +235,51 @@ namespace Tests
         public void TestTruComplexInterpret() {
             Environment testEnv = TruLibrary.Library.ExtendLocalAll(new Environment( new[]{
                 ("y", new TruBool(false)),
-                ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
-                ("good-func", TruExpr.Parse("{lambda {x} x}").Interpret()),
-                ("meta-func", TruExpr.Parse("{lambda {a} {lambda {} a}}").Interpret()) // returns a lambda that captured a.
+                ("bad-func",  TruStatement.Interpret("{lambda {x} y}")),
+                ("good-func", TruStatement.Interpret("{lambda {x} x}")),
+                ("meta-func", TruStatement.Interpret("{lambda {a} {lambda {} a}}")) // returns a lambda that captured a.
             }));
 
             /// y should be not found, since it isn't in the lambda's scope.
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
-            Assert.That( TruExpr.Parse("{good-func false}").Interpret(testEnv),
+            Assert.That( TruStatement.Interpret("{good-func false}", testEnv),
                 Is.EqualTo( new TruBool(false) ));
-            Assert.That( TruExpr.Parse("y").Interpret(testEnv),
+            Assert.That( TruStatement.Interpret("y", testEnv),
                 Is.EqualTo( new TruBool(false) ));
-            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{y}").Interpret(testEnv) ); // not callable.
-            Assert.That( TruExpr.Parse("{{meta-func true}}").Interpret(testEnv),
+            Assert.Throws<System.ArgumentException>( () => TruStatement.Interpret("{y}", testEnv) ); // not callable.
+            Assert.That( TruStatement.Interpret("{{meta-func true}}", testEnv),
                 Is.EqualTo( new TruBool(true) ));
 
             // the lambda return from meta-func should contain a in its environment.
-            TruFunc generatedFunc = TruExpr.Parse("{meta-func true}").Interpret(testEnv) as TruFunc;
+            TruFunc generatedFunc = TruStatement.Interpret("{meta-func true}", testEnv) as TruFunc;
             Assert.That( generatedFunc, Is.Not.EqualTo(null));
             Assert.That( generatedFunc.env.Find("a"), Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse(
+            Assert.That( TruStatement.Interpret(
                 @"{let {[var1 false] [var2 true]}
                     {and var1 var2}
-                  }").Interpret(),
+                  }"),
                 Is.EqualTo( new TruBool(false) ));
 
-            Assert.That( TruExpr.Parse(
+            Assert.That( TruStatement.Interpret(
                 @"{let { [ my-func {lambda {a b} {and a b}} ] }
                     {my-func true true}
-                  }").Interpret(),
+                  }"),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse(
+            Assert.That( TruStatement.Interpret(
                 @"{let {}
                     true
-                  }").Interpret(),
+                  }"),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse( // insure that the captured environment is separate from outer.
+            Assert.That( TruStatement.Interpret( // insure that the captured environment is separate from outer.
                 @"{let { [a false] [my-func {meta-func true}]}
                     {my-func}
-                  }").Interpret(testEnv),
+                  }", testEnv),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{let {x 3} x}").Interpret(testEnv) );
+            Assert.Throws<System.ArgumentException>( () => TruStatement.Interpret("{let {x 3} x}", testEnv) );
         }
 
         [Test]
@@ -320,7 +320,7 @@ namespace Tests
 
 
 
-            Assert.That( TruExpr.Parse(program).Interpret(), Is.EqualTo( new TruBool(true) ));
+            Assert.That( TruStatement.Interpret(program), Is.EqualTo( new TruBool(true) ));
         }
     }
 }
