@@ -103,13 +103,13 @@ namespace Tests
             }) );
 
 
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("hello world") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("}") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("{") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("[mismatched}") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("(missing") );
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("missing)") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("hello world") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("}") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("{") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("[mismatched}") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("(missing") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("missing)") );
         }
 
         [TestMethod]
@@ -129,7 +129,7 @@ namespace Tests
                 new ExprLiteral("x")
             } ));
 
-            Assert.ThrowsException<System.ArgumentException>( () => ExprTree.Parse("missing)") );
+            Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("missing)") );
         }
 
         [TestMethod]

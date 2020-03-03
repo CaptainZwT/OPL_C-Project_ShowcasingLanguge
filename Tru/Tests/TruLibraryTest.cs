@@ -22,6 +22,9 @@ namespace Tests
             Assert.AreEqual( TruStatement.Interpret("{equals {lambda {} true} {lambda {} true}}"), new TruBool(false));
             Assert.AreEqual( TruStatement.Interpret("{let {[f {lambda {} true}]} {equals f f}}"), new TruBool(true));
             Assert.AreEqual( TruStatement.Interpret("{if true true false}"), new TruBool(true));
+
+            Assert.AreEqual( TruStatement.Interpret("{and  false {lambda {} true}}"), new TruBool(false)); // Short circuit evaluation
+            Assert.ThrowsException<TruRuntimeException>( () => TruStatement.Interpret("{and  true {lambda {} true}}") );
         }
 
         [TestMethod]

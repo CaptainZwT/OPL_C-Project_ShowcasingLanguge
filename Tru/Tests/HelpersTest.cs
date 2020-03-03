@@ -15,7 +15,6 @@ namespace Tests
             list.Add("Hello");
             list.Add("World");
 
-
             // Assert.IsTrue( list.Equals(new List<string> {"Hello", "World"}) ); // Initializer syntax tests GetEnumerator
             // Assert.IsTrue( empty.Equals( new List<int>() ));
             // Assert.IsFalse( list.Equals(new List<string> {"Hello", "World", "2"}) );
@@ -30,6 +29,20 @@ namespace Tests
             Assert.AreEqual( list.ToArray().Length, 2) ;
             Assert.AreEqual( list.ToArray()[0], "Hello") ;
             Assert.AreEqual( list.ToArray()[1], "World") ;
+        }
+
+        [TestMethod]
+        public void TestLargeList() {
+            List<int> list = new List<int>();
+
+            for (int i = 0; i < 100; i++) {
+                list.Add(i);
+            }
+
+            Assert.AreEqual( list.Count,  100 ) ;
+            for (int i = 0; i < 100; i++) {
+                Assert.AreEqual( list[i],  i ) ;
+            }
         }
 
         [TestMethod]

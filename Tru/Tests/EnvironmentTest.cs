@@ -23,8 +23,8 @@ namespace Tests
             Assert.AreEqual(env1.Find("a"), new TruBool(true));
             Assert.AreEqual(env3.Find("a"), new TruBool(false));
 
-            Assert.ThrowsException<System.ArgumentException>( () => env1.Find("notHere") );
-            Assert.ThrowsException<System.ArgumentException>( () => empty.Find("a") );
+            Assert.ThrowsException<TruRuntimeException>( () => env1.Find("notHere") );
+            Assert.ThrowsException<TruRuntimeException>( () => empty.Find("a") );
 
             Assert.AreEqual(env2.Find("c"), new TruBool(true)); // Later values take precedence
 

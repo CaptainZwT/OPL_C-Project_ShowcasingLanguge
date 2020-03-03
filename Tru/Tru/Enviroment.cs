@@ -39,7 +39,7 @@ namespace Tru {
             return new Environment(this.list);
         }
 
-        /// Returns the value corresponding to name in the enviroment, or throws an exception if
+        /// Returns the value corresponding to name in the environment, or throws an exception if
         /// if it doesn't exists.
         public TruVal Find(string name) {
             Node currentNode = this.list;
@@ -49,7 +49,7 @@ namespace Tru {
             }
 
             if (currentNode == null) {
-                throw new System.ArgumentException($"Free variable {name}.");
+                throw new TruRuntimeException($"Free variable {name}.");
             } else {
                 return currentNode.val;
             }

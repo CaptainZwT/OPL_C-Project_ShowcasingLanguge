@@ -3,53 +3,51 @@
 namespace Tru {
     /// Contains the default standard library.
     public static class TruLibrary {
-
-        private static TruVal nand(Environment env, TruExpr[] parms) {
-            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
-                return new TruBool( !(a.val && b.val) );
+        /// Interprets expr, checks its type, and returns it. Throws an error if the type doesn't match.
+        private static T Check<T>(TruExpr expr, Environment env) where T : TruVal {
+            TruVal val = expr.Interpret(env);
+            if (val is T t) {
+                return t;
             } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
+                throw new TruRuntimeException($"Incorrect types, given {val.GetType().Name} expected {typeof(T).Name}.");
             }
+        }
+
+        /// Checks paramater count and throws an exception if it doesn't match.
+        private static void CheckCount(TruExpr[] parms, int count) {
+            if (parms.Length != count)
+                throw new TruRuntimeException($"Built-in call with incorrect argument count, given {parms.Length} expected {count}.");
+        }
+        
+        private static TruVal nand(Environment env, TruExpr[] parms) {
+            CheckCount(parms, 2);
+            return new TruBool( !( Check<TruBool>(parms[0], env).val && Check<TruBool>(parms[1], env).val ) );
         }
 
         private static TruVal and(Environment env, TruExpr[] parms) {
-            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
-                return new TruBool( a.val && b.val );
-            } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
-            }
+            CheckCount(parms, 2);
+            return new TruBool( Check<TruBool>(parms[0], env).val && Check<TruBool>(parms[1], env).val );
         }
 
         private static TruVal or(Environment env, TruExpr[] parms) {
-            if (parms.Length == 2 && parms[0].Interpret(env) is TruBool a && parms[1].Interpret(env) is TruBool b) {
-                return new TruBool( a.val || b.val );
-            } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
-            }
+            CheckCount(parms, 2);
+            return new TruBool( Check<TruBool>(parms[0], env).val || Check<TruBool>(parms[1], env).val );
         }
 
         private static TruVal not(Environment env, TruExpr[] parms) {
-            if (parms.Length == 1 && parms[0].Interpret(env) is TruBool a) {
-                return new TruBool( !a.val );
-            } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
-            }
+            CheckCount(parms, 1);
+            return new TruBool( !Check<TruBool>(parms[0], env).val );
         }
 
         private static TruVal equals(Environment env, TruExpr[] parms) { // for bools, same as xnor, but this way it works for other types.
-            if (parms.Length == 2) { // equals will work on all types, and returns a TruBool
-                return new TruBool( parms[0].Interpret(env).Equals(parms[1].Interpret(env)) );
-            } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
-            }
+            // equals will work on all types, and returns a TruBool   
+            CheckCount(parms, 2);
+            return new TruBool( parms[0].Interpret(env).Equals(parms[1].Interpret(env)) );
         }
 
         private static TruVal ifStatement(Environment env, TruExpr[] parms) {
-            if (parms.Length == 3 && parms[0].Interpret(env) is TruBool cond) {
-                return cond.val ? parms[1].Interpret(env) : parms[2].Interpret(env);
-            } else {
-                throw new System.ArgumentException("Invalid types or parameter count.");
-            }
+            CheckCount(parms, 3);
+            return Check<TruBool>(parms[0], env).val ? parms[1].Interpret(env) : parms[2].Interpret(env);
         }
 
 

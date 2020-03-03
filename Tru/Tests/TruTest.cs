@@ -141,7 +141,7 @@ namespace Tests
                     new TruBool(true)
                  }));
 
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{}") ); // Can't have an empty call.
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{}") ); // Can't have an empty call.
 
 
             Assert.AreEqual( TruExpr.Parse("{lambda {a b} a}"),
@@ -159,13 +159,13 @@ namespace Tests
             Assert.AreEqual( TruExpr.Parse("{lambda {and} and}"), // You can shadow built-in bindings
                  new TruLambda(new[] {"and"}, new TruId("and")) );
 
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{lambda {true} true}") ); // You can't shadow true/false
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{lambda {false} false}") );
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{lambda {lambda} false}") );
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{lambda {x} false false}") );
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{lambda {{not x}} false}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{lambda {true} true}") ); // You can't shadow true/false
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{lambda {false} false}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{lambda {lambda} false}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{lambda {x} false false}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{lambda {{not x}} false}") );
 
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{and lambda false}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruExpr.Parse("{and lambda false}") );
 
             Assert.AreEqual( TruExpr.Parse(
                 @"{let {[var1 false] [var2 {not true}]}
@@ -187,8 +187,8 @@ namespace Tests
         [TestMethod]
         public void TestTruParseId() {
             Assert.AreEqual(TruId.Parse("x"), new TruId("x"));
-            Assert.ThrowsException<System.ArgumentException>( () => TruId.Parse("{and}") );
-            Assert.ThrowsException<System.ArgumentException>( () => TruId.Parse("define") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruId.Parse("{and}") );
+            Assert.ThrowsException<TruSyntaxError>( () => TruId.Parse("define") );
         }
         
         [TestMethod]
@@ -201,8 +201,8 @@ namespace Tests
 
             Assert.AreEqual( TruStatement.Interpret("{and {not false} true}"), new TruBool(true) );
 
-            Assert.ThrowsException<System.ArgumentException>( () => TruStatement.Interpret("{and true true true}") );
-            Assert.ThrowsException<System.ArgumentException>( () => TruStatement.Interpret("{and}") );
+            Assert.ThrowsException<TruRuntimeException>( () => TruStatement.Interpret("{and true true true}") );
+            Assert.ThrowsException<TruRuntimeException>( () => TruStatement.Interpret("{and}") );
 
             Assert.AreEqual( TruStatement.Interpret("and"), TruLibrary.Library.Find("and") );
         }
@@ -228,10 +228,10 @@ namespace Tests
             }));
 
             /// y should be not found, since it isn't in the lambda's scope.
-            Assert.ThrowsException<System.ArgumentException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
+            Assert.ThrowsException<TruRuntimeException>( () => TruExpr.Parse("{bad-func false}").Interpret(testEnv) );
             Assert.AreEqual( TruStatement.Interpret("{good-func false}", testEnv), new TruBool(false) );
             Assert.AreEqual( TruStatement.Interpret("y", testEnv), new TruBool(false) );
-            Assert.ThrowsException<System.ArgumentException>( () => TruStatement.Interpret("{y}", testEnv) ); // not callable.
+            Assert.ThrowsException<TruRuntimeException>( () => TruStatement.Interpret("{y}", testEnv) ); // not callable.
             Assert.AreEqual( TruStatement.Interpret("{{meta-func true}}", testEnv), new TruBool(true) );
 
             // the lambda return from meta-func should contain a in its environment.
@@ -254,10 +254,10 @@ namespace Tests
             Assert.AreEqual( TruStatement.Interpret("{let {} true}"), new TruBool(true) );
 
             Assert.AreEqual( TruStatement.Interpret( // insure that the captured environment is separate from outer.
-                "{let { [a false] [my-func {meta-func true}]} {my-func}}", testEnv),
+                "{let { [a false] [my-func {meta-func true}] } {my-func}}", testEnv),
                  new TruBool(true) );
 
-            Assert.ThrowsException<System.ArgumentException>( () => TruStatement.Interpret("{let {x 3} x}", testEnv) );
+            Assert.ThrowsException<TruRuntimeException>( () => TruStatement.Interpret("{let {[x 3]} x}", testEnv) );
         }
 
         [TestMethod]
@@ -270,7 +270,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void Test4WayMultiplexer() {
+        public void TestInterpretAll() {
             string program = @"
                 ; Declare a 4-way multiplexer function and test it on multiple inputs, should return true if the tests pass.
                 {define {multiplex4 s0 s1  i0 i1 i2 i3}
@@ -294,12 +294,15 @@ namespace Tests
                 {multiplex4 true true    false true false true}
             ";
 
-            
             TruVal[] results = TruStatement.InterpretAll(program);
-            Assert.IsTrue(Helpers.ArrayEquals(results, new TruVal[] {
+            CollectionAssert.AreEqual(results, new TruVal[] {
                 new TruBool(false), new TruBool(true), new TruBool(false), new TruBool(true),
                 new TruBool(false), new TruBool(true), new TruBool(false), new TruBool(true),
-            }));
+            });
+
+
+            TruVal[] results2 = TruStatement.InterpretAll("");
+            Assert.AreEqual(results2.Length, 0);
         }
     }
 }

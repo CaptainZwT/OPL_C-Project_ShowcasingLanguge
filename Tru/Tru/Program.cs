@@ -23,8 +23,10 @@ namespace Tru
                         if (result != null)
                             Console.WriteLine(result);
                     }
-                } catch (System.ArgumentException e) {
-                    Console.WriteLine($"Error: {e.Message}");
+                } catch (TruSyntaxError e) {
+                    Console.WriteLine($"Syntax Error: {e.Message}");
+                } catch (TruRuntimeException e) {
+                    Console.WriteLine($"Runtime Exception: {e.Message}");
                 }
             }
         }

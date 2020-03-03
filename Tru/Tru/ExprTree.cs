@@ -42,13 +42,13 @@ namespace Tru {
             List<string> tokens = Tokenize(code);
 
             if (tokens.Count == 0) {
-                throw new System.ArgumentException("No expressions given.");
+                throw new TruSyntaxError("No expressions given.");
             }
 
             (ExprTree expr, int index) = ParseHelper(tokens, 0);
 
             if (index < tokens.Count) {
-                throw new System.ArgumentException("Multiple expressions given.");
+                throw new TruSyntaxError("Multiple expressions given.");
             } else {
                 return expr;
             }
@@ -57,21 +57,16 @@ namespace Tru {
         /// Parses a string into an array of ExprTree.
         public static ExprTree[] ParseAll(string code) {
             List<string> tokens = Tokenize(code);
+            List<ExprTree> expressions = new List<ExprTree>();
 
-            if (tokens.Count == 0) {
-                throw new System.ArgumentException("No expressions given.");
-            } else {
-                List<ExprTree> expressions = new List<ExprTree>();
-
-                int index = 0;
-                while (index < tokens.Count) { // parse expressions until the whole token array is used.
-                    ExprTree expr;
-                    (expr, index) = ParseHelper(tokens, index);
-                    expressions.Add(expr);
-                }
-
-                return expressions.ToArray();
+            int index = 0;
+            while (index < tokens.Count) { // parse expressions until the whole token array is used.
+                ExprTree expr;
+                (expr, index) = ParseHelper(tokens, index);
+                expressions.Add(expr);
             }
+
+            return expressions.ToArray();
         }
 
         /// Parses a list of tokens into an ExprTree. Returns a tuple of ExprTree and the index where it left off in
@@ -91,12 +86,12 @@ namespace Tru {
                 }
 
                 if (index >= tokens.Count) { // Reached end of string and didn't find close bracket.
-                    throw new System.ArgumentException("Mismatched or missing brackets.");
+                    throw new TruSyntaxError($"Mismatched brackets, expected '{close}'.");
                 }
 
                 return (new ExprList(exprList.ToArray()), index + 1);
             } else if ( closing.Contains(tokens[index]) ) { // Closing bracket with no match.
-                throw new System.ArgumentException("Mismatched or missing brackets.");
+                throw new TruSyntaxError($"Mismatched brackets, unexpected '{tokens[index]}'.");
             } else { // just a string literal.
                 return (new ExprLiteral(tokens[index]), index + 1);
             }

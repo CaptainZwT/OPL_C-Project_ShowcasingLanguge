@@ -144,7 +144,7 @@ namespace Tru {
                 }
             }
 
-            throw new System.ArgumentException("Invalid syntax.");
+            throw new TruSyntaxError("Call without any function given (ie. empty brackets '{}').");
         }
     
     }
@@ -210,8 +210,9 @@ namespace Tru {
                 return this.body.Interpret(localEnv);
 
             } else {
-                throw new System.Exception("Call with wrong number of paramaters.");
-
+                throw new TruRuntimeException(
+                    $"Function call with incorrect argument count, given {args.Length} expected {this.parameters.Length}."
+                );
             }
         }
 
@@ -234,10 +235,10 @@ namespace Tru {
                 if (Array.IndexOf(ReservedWords, exprLit.val) < 0) {
                     return new TruId(exprLit.val);
                 } else {
-                    throw new System.ArgumentException($"Can't use {exprLit.val} as an identifier.");
+                    throw new TruSyntaxError($"'Can't use '{exprLit.val}' as an identifier.");
                 }
             } else {
-                throw new System.ArgumentException($"Can't use expression as an identifier.");
+                throw new TruSyntaxError($"Can't use an expression as an identifier.");
             }
         }
 
@@ -258,7 +259,7 @@ namespace Tru {
             if (funcVal is TruCallable callable) {
                 return callable.call(env, this.args);
             } else {
-                throw new System.ArgumentException($"{funcVal} is not callable.");
+                throw new TruRuntimeException($"'{funcVal}' is not callable.");
             }
         }
 
