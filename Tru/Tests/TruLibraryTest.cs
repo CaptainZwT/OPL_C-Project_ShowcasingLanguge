@@ -7,6 +7,11 @@ namespace Tests
     public class TruLibraryTest
     {
         [Test]
+        public void TestGetLibrary() {
+            Assert.False( object.ReferenceEquals(TruLibrary.Library, TruLibrary.Library) ); // TruLibrary copies the Environment each time.
+        }
+
+        [Test]
         public void TestBuiltIns() {
             Assert.That( TruExpr.Parse("{nand true true}").Interpret(),   Is.EqualTo(new TruBool(false)));
             Assert.That( TruExpr.Parse("{and  true true}").Interpret(),   Is.EqualTo(new TruBool(true)));

@@ -1,11 +1,13 @@
 namespace Tru {
     /// Represents the environment of a Tru program as a mapping of names to values.
     public class Environment {
+
+        /// A linked list. It is immutable.
         private class Node {
             public readonly string name;
             public readonly TruVal val;
-            public readonly Node next; // Environment will be a linked list.
-
+            public readonly Node next;
+            
             public Node(string name, TruVal val, Node next) {
                 this.name = name; this.val = val; this.next = next;
             }
@@ -30,6 +32,11 @@ namespace Tru {
                     node = new Node(binding.name, binding.val, node);
 
             this.list = node;
+        }
+
+        /// Returns a copy of this Environment.
+        public Environment Copy() {
+            return new Environment(this.list);
         }
 
         /// Returns the value corresponding to name in the enviroment, or throws an exception if

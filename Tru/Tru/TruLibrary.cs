@@ -63,7 +63,7 @@ namespace Tru {
             ("if",      ifStatement)
         };
 
-        private static (string name, string def)[] _library = new (string, string)[] {
+        private static (string name, string def)[] _definitions = new (string, string)[] {
             ("nor",      "{lambda {a b} {not {or a b}}}"),
             ("xor",      "{lambda {a b} {and {or a b} {nand a b}}}"),
             ("xnor",     "{lambda {a b} {not {xor a b}}}"),
@@ -72,16 +72,21 @@ namespace Tru {
         };
 
 
-        public static Environment library;
+        private static Environment _library;
+
+        /// Returns a copy of the library, so you don't have to worry about modifying it.
+        public static Environment Library {
+            get { return _library.Copy(); }
+        }
 
         /// Parses and combines _builtins and _library into library.
         static TruLibrary() {
-            library = new Environment(
+            _library = new Environment(
                 Array.ConvertAll(_builtins, (func) => (func.name, (TruVal) new TruBuiltIn(func.op)) )
             );
 
-            library.ExtendGlobal(new Environment( // Add to library, all funcs in library have access to all other funcs.
-                Array.ConvertAll(_library,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(library)) )
+            _library.ExtendGlobal(new Environment( // Add to library, all funcs in library have access to all other funcs.
+                Array.ConvertAll(_definitions,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(_library)) )
             ));
         }
     }

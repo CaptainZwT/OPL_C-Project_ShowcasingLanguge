@@ -15,8 +15,8 @@ namespace Tests
             Assert.True(  new TruId("x").Equals( new TruId("x") ));
             Assert.False( new TruId("x").Equals( new TruId("t") ));
 
-            Assert.True(  TruLibrary.library.Find("and").Equals(TruLibrary.library.Find("and")) );
-            Assert.False( TruLibrary.library.Find("and").Equals(TruLibrary.library.Find("or"))  );
+            Assert.True(  TruLibrary.Library.Find("and").Equals(TruLibrary.Library.Find("and")) );
+            Assert.False( TruLibrary.Library.Find("and").Equals(TruLibrary.Library.Find("or"))  );
 
             TruLambda lamb0 = new TruLambda(new string[] {"x"}, new TruId("x"));
             TruLambda lamb1 = new TruLambda(new string[] {"x"}, new TruId("x"));
@@ -65,6 +65,15 @@ namespace Tests
 
             Assert.True(  let0.Equals(let1) );
             Assert.False( let0.Equals(let2) );
+
+            TruStatement def0 = TruStatement.Parse("{define x true}");
+            TruStatement def1 = TruStatement.Parse("{define x true}");
+            TruStatement def2 = TruStatement.Parse("{define x false}");
+
+            Assert.True(  def0.Equals(def1) );
+            Assert.False( def0.Equals(def2) );
+
+
         }
 
         [Test]
@@ -97,10 +106,22 @@ namespace Tests
                     new TruCall(new TruId("and"), new[]{ new TruId("var1"), new TruId("var2") })
                 ).ToString(),
                 Is.EqualTo("{let {[var1 false] [var2 {not true}]} {and var1 var2}}"));
+
+            Assert.That( new TruDef("x", new TruId("b")).ToString(), Is.EqualTo("{define x b}"));
         }
 
         [Test]
-        public void TestTruParse() {
+        public void TestTruParseStatement() {
+            Assert.That( TruStatement.Parse("{define x true}"),
+                Is.EqualTo( new TruDef("x", new TruBool(true) ) ));
+            Assert.That( TruStatement.Parse("{define {my-func x} true}"),
+                Is.EqualTo( new TruDef("my-func", new TruLambda(new[]{"x"}, new TruBool(true)) )));
+            Assert.That( TruStatement.Parse("{not true}"), // an expression is a statement.
+                Is.EqualTo( new TruCall(new TruId("not"), new[] {new TruBool(true)} ) ));
+        }
+
+        [Test]
+        public void TestTruParseExpr() {
             Assert.That( TruExpr.Parse("true"),
                 Is.EqualTo( new TruBool(true) ));
 
@@ -163,16 +184,20 @@ namespace Tests
                     new TruCall(new TruId("and"), new[]{ new TruId("var1"), new TruId("var2") })
                 )));
 
-            Assert.That( TruExpr.Parse(
-                @"{let {}
-                    true
-                  }"),
+            Assert.That( TruExpr.Parse("{let {} true}"),
                 Is.EqualTo( new TruLet(
                     new (string, TruExpr)[]{},
                     new TruBool(true)
                 )));
         }
 
+        [Test]
+        public void TestTruParseId() {
+            Assert.That(TruId.Parse("x"), Is.EqualTo(new TruId("x")));
+            Assert.Throws<System.ArgumentException>( () => TruId.Parse("{and}") );
+            Assert.Throws<System.ArgumentException>( () => TruId.Parse("define") );
+        }
+        
         [Test]
         public void TestTruBasicInterpret() {
             Assert.That( TruExpr.Parse("true").Interpret(),
@@ -184,12 +209,6 @@ namespace Tests
             Assert.That( TruExpr.Parse("{and true true}").Interpret(),
                 Is.EqualTo( new TruBool(true) ));
 
-            Assert.That( TruExpr.Parse("{or false false}").Interpret(),
-                Is.EqualTo( new TruBool(false) ));
-
-            Assert.That( TruExpr.Parse("{not false}").Interpret(),
-                Is.EqualTo( new TruBool(true) ));
-
             Assert.That( TruExpr.Parse("{and {not false} true}").Interpret(),
                 Is.EqualTo( new TruBool(true) ));
 
@@ -197,7 +216,7 @@ namespace Tests
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{and}").Interpret() );
 
             Assert.That( TruExpr.Parse("and").Interpret(),
-                Is.EqualTo( TruLibrary.library.Find("and") ));
+                Is.EqualTo( TruLibrary.Library.Find("and") ));
         }
 
         [Test]
@@ -214,7 +233,7 @@ namespace Tests
 
         [Test]
         public void TestTruComplexInterpret() {
-            Environment testEnv = TruLibrary.library.ExtendLocalAll(new Environment( new[]{
+            Environment testEnv = TruLibrary.Library.ExtendLocalAll(new Environment( new[]{
                 ("y", new TruBool(false)),
                 ("bad-func",  TruExpr.Parse("{lambda {x} y}").Interpret()),
                 ("good-func", TruExpr.Parse("{lambda {x} x}").Interpret()),
@@ -261,6 +280,15 @@ namespace Tests
                 Is.EqualTo( new TruBool(true) ));
 
             Assert.Throws<System.ArgumentException>( () => TruExpr.Parse("{let {x 3} x}").Interpret(testEnv) );
+        }
+
+        [Test]
+        public void TestTruDef() {
+            Environment global = TruLibrary.Library;
+            TruStatement.Parse("{define var1 true}").Interpret(global);
+            TruStatement.Parse("{define {my-func x} {and var1 x}}").Interpret(global);
+            
+            Assert.That( TruStatement.Parse("{my-func var1}").Interpret(global), Is.EqualTo(new TruBool(true)));
         }
 
         [Test]
