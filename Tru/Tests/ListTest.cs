@@ -1,12 +1,13 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Utility;
 
 namespace Tests
 {
+    [TestClass]
     public class ListTest
     {
 
-        [Test]
+        [TestMethod]
         public void TestList() {
             List<int> empty = new List<int>();
 
@@ -14,24 +15,23 @@ namespace Tests
             list.Add("Hello");
             list.Add("World");
 
+            // Assert.IsTrue( list.Equals(new List<string> {"Hello", "World"}) ); // Initializer syntax tests GetEnumerator
+            // Assert.IsTrue( empty.Equals( new List<int>() ));
+            // Assert.IsFalse( list.Equals(new List<string> {"Hello", "World", "2"}) );
 
-            // Assert.True( list.Equals(new List<string> {"Hello", "World"}) ); // Initializer syntax tests GetEnumerator
-            // Assert.True( empty.Equals( new List<int>() ));
-            // Assert.False( list.Equals(new List<string> {"Hello", "World", "2"}) );
+            Assert.AreEqual( empty.Count,  0 ) ;
+            Assert.AreEqual( list.Count,  2 ) ;
 
-            Assert.That( empty.Count, Is.EqualTo( 0 ) );
-            Assert.That( list.Count, Is.EqualTo( 2 ) );
+            Assert.AreEqual( list[0],  "Hello" ) ;
+            Assert.AreEqual( list[1],  "World" ) ;
+            Assert.ThrowsException<System.IndexOutOfRangeException>( () => list[2].ToString() );
 
-            Assert.That( list[0], Is.EqualTo( "Hello" ) );
-            Assert.That( list[1], Is.EqualTo( "World" ) );
-            Assert.Throws<System.IndexOutOfRangeException>( () => list[2].ToString() );
-
-            Assert.That( list.ToArray().Length, Is.EqualTo(2) );
-            Assert.That( list.ToArray()[0], Is.EqualTo("Hello") );
-            Assert.That( list.ToArray()[1], Is.EqualTo("World") );
+            Assert.AreEqual( list.ToArray().Length, 2) ;
+            Assert.AreEqual( list.ToArray()[0], "Hello") ;
+            Assert.AreEqual( list.ToArray()[1], "World") ;
         }
 
-        [Test]
+        [TestMethod]
         public void TestLargeList() {
             List<int> list = new List<int>();
 
@@ -39,9 +39,9 @@ namespace Tests
                 list.Add(i);
             }
 
-            Assert.That( list.Count, Is.EqualTo( 100 ) );
+            Assert.AreEqual( list.Count,  100 ) ;
             for (int i = 0; i < 100; i++) {
-                Assert.That( list[i], Is.EqualTo( i ) );
+                Assert.AreEqual( list[i],  i ) ;
             }
         }
 

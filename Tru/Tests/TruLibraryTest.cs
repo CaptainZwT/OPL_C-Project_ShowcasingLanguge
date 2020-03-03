@@ -1,35 +1,36 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tru;
 using Utility;
 
 namespace Tests
 {
+    [TestClass]
     public class TruLibraryTest
     {
-        [Test]
+        [TestMethod]
         public void TestGetLibrary() {
-            Assert.False( object.ReferenceEquals(TruLibrary.Library, TruLibrary.Library) ); // TruLibrary copies the Environment each time.
+            Assert.IsFalse( object.ReferenceEquals(TruLibrary.Library, TruLibrary.Library) ); // TruLibrary copies the Environment each time.
         }
 
-        [Test]
+        [TestMethod]
         public void TestBuiltIns() {
-            Assert.That( TruStatement.Interpret("{nand true true}"),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{and  true true}"),   Is.EqualTo(new TruBool(true)));
-            Assert.That( TruStatement.Interpret("{or   false false}"), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{not  true}"),        Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{equals true true}"), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruStatement.Interpret("{equals {lambda {} true} {lambda {} true}}"), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{let {[f {lambda {} true}]} {equals f f}}"), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruStatement.Interpret("{if true true false}"), Is.EqualTo(new TruBool(true)));
+            Assert.AreEqual( TruStatement.Interpret("{nand true true}"),   new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{and  true true}"),   new TruBool(true));
+            Assert.AreEqual( TruStatement.Interpret("{or   false false}"), new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{not  true}"),        new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{equals true true}"), new TruBool(true));
+            Assert.AreEqual( TruStatement.Interpret("{equals {lambda {} true} {lambda {} true}}"), new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{let {[f {lambda {} true}]} {equals f f}}"), new TruBool(true));
+            Assert.AreEqual( TruStatement.Interpret("{if true true false}"), new TruBool(true));
         }
 
-        [Test]
+        [TestMethod]
         public void TestLibrary() {
-            Assert.That( TruStatement.Interpret("{nor  true true}"),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{xor  true true}"),   Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{xnor false false}"), Is.EqualTo(new TruBool(true)));
-            Assert.That( TruStatement.Interpret("{implies true false}"), Is.EqualTo(new TruBool(false)));
-            Assert.That( TruStatement.Interpret("{majority true false false}"), Is.EqualTo(new TruBool(false)));
+            Assert.AreEqual( TruStatement.Interpret("{nor  true true}"),   new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{xor  true true}"),   new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{xnor false false}"), new TruBool(true));
+            Assert.AreEqual( TruStatement.Interpret("{implies true false}"), new TruBool(false));
+            Assert.AreEqual( TruStatement.Interpret("{majority true false false}"), new TruBool(false));
         }
     }
 }
