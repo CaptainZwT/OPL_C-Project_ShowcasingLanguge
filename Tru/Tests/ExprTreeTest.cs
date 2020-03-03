@@ -119,6 +119,26 @@ namespace Tests
         }
 
         [Test]
+        public void TestExprTreeParseAll() {
+            Assert.True( Helpers.ArrayEquals(ExprTree.ParseAll("x"), new[]{new ExprLiteral("x")}) );
+
+            Assert.True( Helpers.ArrayEquals(ExprTree.ParseAll("hello world"),
+                new[]{new ExprLiteral("hello"), new ExprLiteral("world")}) );
+
+
+            Assert.True( Helpers.ArrayEquals(ExprTree.ParseAll("{a list} x"),
+                new ExprTree[]{
+                    new ExprList(new ExprTree[]{
+                        new ExprLiteral("a"),
+                        new ExprLiteral("list")
+                    }),
+                new ExprLiteral("x")
+            } ));
+
+            Assert.Throws<System.ArgumentException>( () => ExprTree.Parse("missing)") );
+        }
+
+        [Test]
         public void TestMatch() {
             Assert.True(  ExprTree.Match("ANY", ExprTree.Parse("words"))  );
 

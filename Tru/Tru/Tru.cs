@@ -41,6 +41,23 @@ namespace Tru {
             return TruStatement.Parse(code).Interpret(env);
         }
 
+        /// Parses a string into multiple exressions, and returns an array of any values calculated.
+        /// Does not include null values in the array (ie. when define statements are interpreted).
+        /// Environment defaults to standard library.
+        public static TruVal[] InterpretAll(string code, Environment env = null) {
+            env = env ?? TruLibrary.Library;
+            TruStatement[] exprs = TruStatement.ParseAll(code);
+
+            List<TruVal> rtrnVals = new List<TruVal>();
+            foreach (TruStatement expr in exprs) {
+                TruVal result = expr.Interpret(env);
+                if (result != null)
+                    rtrnVals.Add(result);
+            }
+
+            return rtrnVals.ToArray();
+        }
+
         /// Interprets a TruExpr with the standard library.
         public TruVal Interpret() { return this.Interpret(TruLibrary.Library); }
 
@@ -48,8 +65,13 @@ namespace Tru {
         /// May return a TruVal if the statement returns a value.
         public abstract TruVal Interpret(Environment env);
 
-        /// Parses a string into Tru abstract syntax that can be Executed.
+         /// Parses a string into Tru abstract syntax that can be Executed.
         public static TruStatement Parse(string code) { return TruStatement.Parse( ExprTree.Parse(code) ); }
+
+        /// Parses a string into a list of TruStatements.
+        public static TruStatement[] ParseAll(string code) {
+            return Array.ConvertAll( ExprTree.ParseAll(code), TruStatement.Parse );
+        }
 
         /// Parses an ExprTree into Tru abstract syntax that can be Executed.
         public static TruStatement Parse(ExprTree expr) {

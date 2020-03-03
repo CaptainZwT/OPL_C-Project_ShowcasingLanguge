@@ -37,6 +37,7 @@ namespace Tru {
             return tokens;
         }
 
+        /// Parses a string into a single ExprTree. If multiple expressions are given, it will throw an error.
         public static ExprTree Parse(string code) {
             List<string> tokens = Tokenize(code);
 
@@ -47,9 +48,29 @@ namespace Tru {
             (ExprTree expr, int index) = ParseHelper(tokens, 0);
 
             if (index < tokens.Count) {
-                throw new System.ArgumentException("Multiple expressions given or missmatched brackets.");
+                throw new System.ArgumentException("Multiple expressions given.");
             } else {
                 return expr;
+            }
+        }
+
+        /// Parses a string into an array of ExprTree.
+        public static ExprTree[] ParseAll(string code) {
+            List<string> tokens = Tokenize(code);
+
+            if (tokens.Count == 0) {
+                throw new System.ArgumentException("No expressions given.");
+            } else {
+                List<ExprTree> expressions = new List<ExprTree>();
+
+                int index = 0;
+                while (index < tokens.Count) { // parse expressions until the whole token array is used.
+                    ExprTree expr;
+                    (expr, index) = ParseHelper(tokens, index);
+                    expressions.Add(expr);
+                }
+
+                return expressions.ToArray();
             }
         }
 
@@ -57,7 +78,7 @@ namespace Tru {
         /// the token list, ie the place to parse next.!-- If its a literal string, it will return it, else, it will
         /// return the expr up until the matching close bracket.
         private static (ExprTree expr, int index) ParseHelper(List<string> tokens, int index) {
-            if ( opening.Contains(tokens[index]) ) {
+            if ( opening.Contains(tokens[index]) ) { // If opening bracket
                 char close = closing[ opening.IndexOf(tokens[index]) ]; // Closing bracket we're looking for
 
                 index += 1;
