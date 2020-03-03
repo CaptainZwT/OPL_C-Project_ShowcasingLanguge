@@ -4,21 +4,28 @@ namespace Tru
 {
     class Program
     {
+
+        /// Launches a REPL where you can evaluate Tru statements.
+        /// Type "quit" to exit.
         static void Main(string[] args)
         {
+            Environment global = TruLibrary.Library;
+
             while (true) {
                 Console.Write( ">>> ");
                 string input = Console.ReadLine();
-
-                if (input == "exit")  return;
+                if (input == "quit")  return;
 
                 try {
-                    TruVal result = TruStatement.Interpret(input);
-                    Console.WriteLine( result.ToString() );
+                    TruStatement[] statements = TruStatement.ParseAll(input);
+                    foreach (TruStatement statement in statements) {
+                        TruVal result = statement.Interpret(global);
+                        if (result != null)
+                            Console.WriteLine(result);
+                    }
                 } catch (System.ArgumentException e) {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine($"Error: {e.Message}");
                 }
-
             }
         }
     }
