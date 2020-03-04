@@ -17,19 +17,8 @@ namespace Tru {
     ///         TruLambda
     ///         TruLet
     ///     TruDef
-
-    /// Concrete syntax is described in (Extended) Backus-Naur Form
-    /// <character> ::= "A" | "B" | "C" ... "a" | "b" | "c" ... "0" | "1" | "2" ... "!" | "@" | "#" | "$" | "%" | "^" ...
-    /// <statement> ::= <expression> | <define> | <define-func>
-    /// <expression> ::= <bool> | <id> | <call> | <lambda> | <let>
-    /// <bool> ::= "true" | "false"
-    /// <id>   ::= <character>+
-    /// <call> ::= "{" <expression> <expression>* "}"
-    /// <lambda> ::= "{" "lambda" "{" <id>* "}" <expression> "}"
-    /// <binding> ::= "[" <id> <expr> "]"
-    /// <let> ::= "{" "let" "{" <binding>* "}" <expression> "}"
-    /// <define> :: "{" "define" <id> <expression> "}
-    /// <define-func> ::= "{" "define" "{" <id> <id>* "}" <expression> "}"
+    ///
+    /// See Program.cs for documentation of concrete syntax.
 
     /// Represents a statement in the Tru language, ie and expression or a define.
     public abstract class TruStatement {
