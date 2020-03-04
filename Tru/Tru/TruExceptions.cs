@@ -1,4 +1,5 @@
-﻿using System; // For array.
+﻿// For System.Exception, which new exception classes must extend from.
+using System;
 
 namespace Tru {
     /// A parsing exception for the Tru language

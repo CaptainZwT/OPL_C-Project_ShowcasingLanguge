@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿// To recreate a List like data-structure, we have to extend from System.Collections.IEnumerable, which allows the List
+// to work in foreach loops and the like.
+using System.Collections; 
 
 namespace Utility {
     public class List<T> : IEnumerable

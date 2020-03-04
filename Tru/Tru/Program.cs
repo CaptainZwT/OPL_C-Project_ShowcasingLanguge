@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System; // For System.WriteLine() and System.ReadLine()
 
 namespace Tru
 {

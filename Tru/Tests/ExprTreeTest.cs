@@ -114,20 +114,20 @@ namespace Tests
 
         [TestMethod]
         public void TestExprTreeParseAll() {
-            Assert.IsTrue( Helpers.ArrayEquals(ExprTree.ParseAll("x"), new[]{new ExprLiteral("x")}) );
+            CollectionAssert.AreEqual( ExprTree.ParseAll("x"), new[]{new ExprLiteral("x")} );
 
-            Assert.IsTrue( Helpers.ArrayEquals(ExprTree.ParseAll("hello world"),
-                new[]{new ExprLiteral("hello"), new ExprLiteral("world")}) );
+            CollectionAssert.AreEqual( ExprTree.ParseAll("hello world"),
+                new[]{new ExprLiteral("hello"), new ExprLiteral("world")} );
 
 
-            Assert.IsTrue( Helpers.ArrayEquals(ExprTree.ParseAll("{a list} x"),
+            CollectionAssert.AreEqual( ExprTree.ParseAll("{a list} x"),
                 new ExprTree[]{
                     new ExprList(new ExprTree[]{
                         new ExprLiteral("a"),
                         new ExprLiteral("list")
                     }),
                 new ExprLiteral("x")
-            } ));
+            } );
 
             Assert.ThrowsException<TruSyntaxError>( () => ExprTree.Parse("missing)") );
         }

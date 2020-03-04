@@ -1,4 +1,4 @@
-﻿using System; // For array.
+﻿using Utility;
 
 namespace Tru {
     /// Contains the default standard library.
@@ -80,11 +80,11 @@ namespace Tru {
         /// Parses and combines _builtins and _library into library.
         static TruLibrary() {
             _library = new Environment(
-                Array.ConvertAll(_builtins, (func) => (func.name, (TruVal) new TruBuiltIn(func.op)) )
+                Helpers.ArrayMap(_builtins, (func) => (func.name, (TruVal) new TruBuiltIn(func.op)) )
             );
 
             _library.ExtendGlobal(new Environment( // Add to library, all funcs in library have access to all other funcs.
-                Array.ConvertAll(_definitions,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(_library)) )
+                Helpers.ArrayMap(_definitions,  (func) => (func.name, TruExpr.Parse(func.def).Interpret(_library)) )
             ));
         }
     }

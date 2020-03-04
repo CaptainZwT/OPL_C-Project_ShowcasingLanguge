@@ -55,5 +55,14 @@ namespace Tests
             Assert.IsFalse( Helpers.ArrayEquals(list, new string[] {"Hello", "World", "2"}) );
         }
 
+        [TestMethod]
+        public void TestArrayMap() {
+            int[] list = new int[] {1, 2, 3};
+            string[] empty = new string[] {};
+
+            CollectionAssert.AreEqual( Helpers.ArrayMap(list, (e) => e.ToString()), new [] {"1", "2", "3"});
+            CollectionAssert.AreEqual( Helpers.ArrayMap(empty, (e) => e + "\n"), new string[] {} );
+        }
+
     }
 }
