@@ -60,7 +60,7 @@ SYNTAX:
 VALUES:
     A Tru expression can evaluate to either a bool, a built-in function, or a user-defined function.
 
-BUILT-IN FUNCTIONS AND STANDARD LIBRARY FUNCTIONS
+BUILT-IN FUNCTIONS AND STANDARD LIBRARY FUNCTIONS:
     nand : (bool bool -> bool)
         Logical nand. Supports short-circuit evaluation.
     and : (bool bool -> bool)

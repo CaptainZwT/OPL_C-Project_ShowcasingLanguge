@@ -222,7 +222,7 @@ namespace Tru {
             if (expr is ExprLiteral exprLit) {
                 foreach (string keyword in ReservedWords) {
                     if (exprLit.val == keyword)
-                        throw new TruSyntaxError($"'Can't use '{exprLit.val}' as an identifier.");
+                        throw new TruSyntaxError($"Can't use \"{exprLit.val}\" as an identifier.");
                 }
                 return new TruId(exprLit.val);
             } else {
