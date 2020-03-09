@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSharp_BasicChat_Serverside
 {
@@ -20,7 +17,7 @@ namespace CSharp_BasicChat_Serverside
         {
             var serverSocket = new TcpListener(IPAddress.Any, 8888);
             serverSocket.Start();
-            Console.WriteLine("Chat server started...");
+            Console.WriteLine("JLM OPL C# Chat server started...");
             while (true)
             {
                 //This next line of code actually blocks
@@ -32,7 +29,7 @@ namespace CSharp_BasicChat_Serverside
                 //Tell everyone that someone new joined!
                 Broadcast(dataFromClient + " joined.", dataFromClient, false);
                 //Log the fact to the server console
-                Console.WriteLine(dataFromClient + " joined cat room.");
+                Console.WriteLine(dataFromClient + " joined the sharp C.");
                 //Create a new object to Handle all future incoming messages from this client
                 var client = new HandleClient();
                 //Start that thread running
