@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace CSharp_BasicChat_Serverside
 {
@@ -10,15 +11,68 @@ namespace CSharp_BasicChat_Serverside
         //This is a dictionary of key,value pairs used to store the names and sockets of each client.
         public static Dictionary<string, TcpClient> ClientList = new Dictionary<string, TcpClient>();
 
+        private static bool active;
+
+        private static TcpListener serverSocket;
+
         /// <summary>
         /// Listens for new connections and handles them.
         /// </summary>
         static void Main()
         {
-            var serverSocket = new TcpListener(IPAddress.Any, 8888);
+            serverSocket = new TcpListener(IPAddress.Any, 8888);
             serverSocket.Start();
-            Console.WriteLine("JLM OPL C# Chat server started...");
-            while (true)
+            Console.WriteLine("OPL Chat server started...");
+
+            active = true;
+
+            var thread0 = new Thread(GetConnection);
+            thread0.Start();
+
+            var thread1 = new Thread(GetCommand);
+            thread1.Start();
+        }
+
+        private static void GetCommand()
+        {
+            while (active)
+            {
+                string inp = Console.ReadLine();
+
+                if ((inp.Length > 5) && (inp.Substring(0, 4) == "/say"))
+                    // transmits a message to all connected users
+                {
+                    Broadcast(inp.Substring(4), "Server", true);
+                    Console.WriteLine("[" + DateTime.Now + "] (Server):" + inp.Substring(5));
+                }
+                else if ((inp.Substring(0, 5) == "/list"))
+                    // lists the users connected
+                {
+                    string msg = "";
+                    if (ClientList.Count > 0)
+                    {
+                        foreach (string name in ClientList.Keys)
+                        {
+                            msg += name + "\n";
+                        }
+                    }
+                    else
+                    {
+                        msg = "No clients currently connected.";
+                    }
+
+                    Console.WriteLine(msg);
+                }
+                else if ((inp.Substring(0, 6) == "/clear"))
+                {
+                    Console.Clear();
+                }
+            }
+        }
+
+        private static void GetConnection()
+        {
+            while (active)
             {
                 //This next line of code actually blocks
                 var clientSocket = serverSocket.AcceptTcpClient();
@@ -49,8 +103,8 @@ namespace CSharp_BasicChat_Serverside
             foreach (var item in ClientList)
             {
                 var broadcastSocket = item.Value;
-                var m = flag ? uname + " says: " + msg : msg;
-                item.Value.WriteString(m);
+                var m = flag ? DateTime.Now + " [" + uname + "]: " + msg : msg;
+                item.Value.WriteString("#(" + m);
             }
         }
     }

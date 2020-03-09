@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp_BasicChat_Serverside", "CSharp_BasicChat_Serverside\CSharp_BasicChat_Serverside.csproj", "{F623F18D-C464-4C90-92ED-FF8C141400B7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646} = {B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp_BasicChat_Clientside", "CSharp_BasicChat_Clientside\CSharp_BasicChat_Clientside.csproj", "{7DF94E2E-1232-4C86-A02F-B9236CDF7884}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646} = {B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp_BasicChat_Library", "CSharp_BasicChat_Library\CSharp_BasicChat_Library.csproj", "{B46DBFA8-30F2-4809-B121-D4A1557B2E94}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp_BasicChat_Helpers", "CSharp_BasicChat_Helpers\CSharp_BasicChat_Helpers.csproj", "{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +29,10 @@ Global
 		{7DF94E2E-1232-4C86-A02F-B9236CDF7884}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DF94E2E-1232-4C86-A02F-B9236CDF7884}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DF94E2E-1232-4C86-A02F-B9236CDF7884}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B46DBFA8-30F2-4809-B121-D4A1557B2E94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B46DBFA8-30F2-4809-B121-D4A1557B2E94}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B46DBFA8-30F2-4809-B121-D4A1557B2E94}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B46DBFA8-30F2-4809-B121-D4A1557B2E94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4B9F0AD-7A42-4627-9D5E-B3A74CE00646}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

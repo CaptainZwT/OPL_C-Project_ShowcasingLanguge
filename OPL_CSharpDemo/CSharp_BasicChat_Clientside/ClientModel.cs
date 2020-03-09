@@ -25,7 +25,9 @@ namespace CSharp_BasicChat_Clientside
             active = true;
 
             // welcome message and creating the thread to handle input
-            Console.WriteLine("Welcome: " + message);
+            Console.WriteLine("Welcome to the conversation. Type in a message when ready.");
+
+            // assign a thread to constantly be running GetMessage
             var thread = new Thread(GetMessage);
             thread.Start();
 
@@ -35,7 +37,7 @@ namespace CSharp_BasicChat_Clientside
             
         private void GetMessage()
         {
-            while (true)
+            while (active)
             {
 
                 string msg = _socket.ReadString();

@@ -53,9 +53,9 @@
     <Compile Include="HandleClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharp_BasicChat_Library\CSharp_BasicChat_Library.csproj">
-      <Project>{b46dbfa8-30f2-4809-b121-d4a1557b2e94}</Project>
-      <Name>CSharp_BasicChat_Library</Name>
+    <ProjectReference Include="..\CSharp_BasicChat_Helpers\CSharp_BasicChat_Helpers.csproj">
+      <Project>{b4b9f0ad-7a42-4627-9d5e-b3a74ce00646}</Project>
+      <Name>CSharp_BasicChat_Helpers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

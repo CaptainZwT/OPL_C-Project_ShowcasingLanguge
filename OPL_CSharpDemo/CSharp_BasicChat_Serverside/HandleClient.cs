@@ -20,6 +20,7 @@ namespace CSharp_BasicChat_Serverside
         {
             _clientName = clientName;
             _clientSocket = clientSocket;
+
             var thread = new Thread(DoChat);
             thread.Start();
         }
@@ -34,8 +35,17 @@ namespace CSharp_BasicChat_Serverside
                 try
                 {
                     string dataFromClient = _clientSocket.ReadString();
-                    Program.Broadcast(dataFromClient, _clientName, true);
-                    Console.WriteLine(dataFromClient);
+
+                    if ((dataFromClient[0] == '#') && (dataFromClient[1] == '(')) // chat message
+                    {
+                        string msg = dataFromClient.Substring(2);
+                        Program.Broadcast(msg, _clientName, true);
+                        Console.WriteLine("[" + DateTime.Now + "] (" + _clientName + "): " + msg);
+                    }
+                    else
+                    {
+                        Program.Broadcast(dataFromClient, _clientName, true);
+                    }
                 }
                 catch (Exception ex)
                 {
