@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSharp_BasicChat_Helpers;
+using System;
 using System.Net.Sockets;
 using System.Threading;
 
