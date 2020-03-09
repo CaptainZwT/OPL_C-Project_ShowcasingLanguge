@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace CSharp_BasicChat_Serverside
 {
+    /* Dr. A created this code for Principles of Networking : https://dra.cs.southern.edu/ 
+       I understand it, but am simply abstracting this part away. 
+    */
     public static class TCPClientExtension
     {
         public static void WriteString(this TcpClient tcpClient, string msg)

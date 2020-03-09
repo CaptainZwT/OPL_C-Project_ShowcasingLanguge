@@ -4,8 +4,15 @@ using System.Text;
 
 namespace CSharp_BasicChat_Helpers
 {
+    // This Extension code is taken from Principles of Networking class
+    // I am abstracting it away even though I understand it.
+    // It was Written by Scot Anderson, whose website is 
+    // https://dra.cs.southern.edu/ at SAU
+    // http://www.scotnpatti.com/ personal
+
     public static class TCPClientExtension
     {
+        
         public static void WriteString(this TcpClient tcpClient, string msg)
         {
             msg += '\0';
