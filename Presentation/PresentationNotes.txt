@@ -1,0 +1,82 @@
+History C#
+    Early .NET development, Jan 1999, team formed to build a new language "C-like Object Oriented Language" or COOL. Microsoft by the time .NET project was officially announced in July 2000 the language was renamed C# so that they could trademark it better.
+    Heavily influenced by C++ and Java
+    C#, # is ++ so, C++++
+             ++
+    Microsoft wanted C# to compete with Java
+
+
+
+Pros
+    Familiar Syntax for Java or C++ developers
+    Portability
+    Loads of "Syntactic Sugar" and lots of features
+    Large Standard Library
+    Highly integrated with VS
+Cons
+    Lots of "Syntactic Sugar" and features to learn.
+    More complex syntax than Python
+    Less efficient than compiled to machine code languages like C/C++
+    Highly integrated with VS
+
+Paradigms:
+    A little bit of everything.
+    Strongly Object Oriented, everything is a class or object. Even primitives like int, are able to be treated as "value types" which are still objects.
+    Functional
+    Procedural
+    Declarative (in LINQ)
+    Compiled then interpreted
+    Strongly Typed and Statically Typed.
+
+Syntax
+    Learning C# will help you learn most other languages... It takes syntax from many other languages.
+Interesting Syntax:
+    Pythonesque tuples (but typed):
+        static (int, int) GetTwoNumbers() { ... }
+        (int a, int b) = GetTwoNumbers();
+    Built-in lock syntax:
+        Automagically handles releasing lock in case of returns, exceptions or other special cases of exiting the code block.
+
+        lock (object) {
+            // code ...
+        }
+    String Interpolation:
+        string s = $"two plus two equals {2 + 2}.";
+    Functional:
+        public delegate int MyDelegate(string s); // Creates a new type that any function that matches the signature
+        public Func<string, int> myVar; // Part of Standard Library which allows you to declare a delegate type on the fly.
+        (s) => s.Length
+    LING:
+        Works on any Enumerable type, Lists, Arrays, Databases, etc.
+        // Define the query expression.
+        IEnumerable<string> startingDeck = from s in Suits()
+                       from r in Ranks()
+                       select new { Suit = s, Rank = r };
+        Which is compiled to and equivalent to:
+        IEnumerable<string> startingDeck = Suits().SelectMany(suit => Ranks().Select(rank => new { Suit = suit, Rank = rank }));
+
+        
+
+Design Goals
+    Offical Design Goals:
+        - C# is intended to be a simple, modern, general-purpose, object-oriented programming language.
+        - The language, and implementations thereof, should provide support for software engineering principles such as strong type checking, array bounds checking, detection of attempts to use uninitialized variables, and automatic garbage collection. Software robustness, durability, and programmer productivity are important.
+        - The language is intended for use in developing software components suitable for deployment in distributed environments.
+        - Source code portability is very important, as is programmer portability, especially for those
+programmers already familiar with C and C++.
+        - Support for internationalization is very important.
+        - C# is intended to be suitable for writing applications for both hosted and embedded systems, ranging from the very large that use sophisticated operating systems, down to the very small having dedicated functions.
+        - Although C# applications are intended to be economical with regard to memory and processing power requirements, the language was not intended to compete directly on performance and size with C or assembly language
+
+    Summary:
+        - Simple and modern OO language.
+        - Safety, typing, bounds checking, managed lanuage (GC)
+        - Portable
+        - Easy to learn if you already know C, C++ or Java
+
+
+Sources:
+https://en.wikipedia.org/wiki/C_Sharp_(programming_language)
+https://www.computerworld.com/article/3468847/the-a-z-of-programming-languages-c.html
+https://wiki.c2.com/?HistoryOfCsharp
+https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-334.pdf
