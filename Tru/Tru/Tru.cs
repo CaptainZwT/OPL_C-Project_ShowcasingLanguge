@@ -241,6 +241,7 @@ namespace Tru {
         public TruExpr func;
         public TruExpr[] args;
         public TruCall(TruExpr func, TruExpr[] args) { this.func = func; this.args = args; }
+        
         public override TruVal Interpret(Environment env) {
             TruVal funcVal = this.func.Interpret(env);
 
